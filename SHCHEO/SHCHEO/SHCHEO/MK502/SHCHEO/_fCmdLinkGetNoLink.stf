@@ -1,4 +1,0 @@
-FUNCTION _fCmdLinkGetNoLink
-_fCmdLinkGetNoLink:= true;
-
-END_FUNCTION

@@ -1,9 +1,0 @@
-FUNCTION _fCmdLinkOperate
-_fCmdLinkOperate:= iowCommand; 
-(* --------------------------------------------------------------------- *)
-(* Расшифровка кода команды IndLink системы *)
-iorIdnLink:= iorCommand/10000000*1000; if iorIdnLink<0 then iorIdnLink:= -iorIdnLink; end_if;
-iowIdnLink:= iowCommand/10000000*1000; if iowIdnLink<0 then iowIdnLink:= -iowIdnLink; end_if;
-(* --------------------------------------------------------------------- *)
-
-END_FUNCTION

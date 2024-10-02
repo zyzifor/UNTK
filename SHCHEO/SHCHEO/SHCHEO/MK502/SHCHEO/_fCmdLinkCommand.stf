@@ -1,4 +1,0 @@
-FUNCTION _fCmdLinkCommand
-if not Command                             then _fCmdLinkCommand:=  0; return; end_if;  (* Нет команды *) 
-
-END_FUNCTION
