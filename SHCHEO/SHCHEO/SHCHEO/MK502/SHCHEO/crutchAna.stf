@@ -1,0 +1,22 @@
+FUNCTION crutchAna
+crutchAna := 1;
+(* reqAna - номер запрашиваемого объекта (это значение в Modbus пишет панель) *)
+Size := 2;
+m := 63;
+n := 5;
+_dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, Size);
+reqAna := ANY_TO_DINT(iData[0, 0]);
+IF reqAna = 0 THEN
+	ansAna := 1;
+ELSIF reqAna <= sAna.iMax THEN
+	IF Rd THEN
+		dAna[ansAna] := dAna[1];
+	ELSE
+		dAna[1] := dAna[reqAna];
+		ansAna := reqAna;
+	END_IF;
+END_IF;
+(* ansAna - номер выдаваемого объекта (это значение в Modbus пишет контроллер) *)
+iData[0, 1] := ANY_TO_WORD(ansAna);
+_dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, Size);
+END_FUNCTION

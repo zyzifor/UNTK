@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="prociombDtTm" ElementGuid="161e9d9c-87f1-4125-ab5a-c9108a42561f" Comment="" SingleTextLine="Обмен Modbus Dio" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="prociombDtTm" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="nWr" DataType="BOOL" InitialValue="" Comment="true - Запись из Modbus в ПЛК/false - чтение из ПЛК в Modbus" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="Результат функции BOOL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="n" DataType="DINT" InitialValue="" Comment="Номер в массиве iodMBP_4x[m].regs[n]" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iReal" DataType="REAL" InitialValue="" Comment="Массив промежуточных данных REAL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="0" />
+    </Variable>
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="m" DataType="DINT" InitialValue="" Comment="Номер в массиве iodMBP_4x[m].regs[n]" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iWord" DataType="WORD" InitialValue="" Comment="Массив промежуточных данных WORD" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="1" />
+    </Variable>
+    <Variable Name="_iRes" DataType="INT" InitialValue="" Comment="Результат функции INT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iData" DataType="WORD" InitialValue="" Comment="Массив промежуточных данных" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="1" />
+      <Dimension Lower="0" Upper="99" />
+    </Variable>
+    <Variable Name="_dRes" DataType="DINT" InitialValue="" Comment="Результат функции DINT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION prociombDtTm
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* prociombDtTm        BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* nWr                 BOOL                                VarInput   Read            true - Запись из Modbus в ПЛК/false - чтение из ПЛК в Modbus *)
+(* iData               WORD          [0...0,0...99]        Var        Read/Write      Массив промежуточных данных *)
+(* iWord               WORD          [0...1]               Var        Read/Write      Массив промежуточных данных WORD *)
+(* iReal               REAL          [0...0]               Var        Read/Write      Массив промежуточных данных REAL *)
+(* j                   DINT                                Var        Read/Write      Счётчик *)
+(* m                   DINT                                Var        Read/Write      Номер в массиве iodMBP_4x[m].regs[n] *)
+(* n                   DINT                                Var        Read/Write      Номер в массиве iodMBP_4x[m].regs[n] *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+prociombDtTm:= sDtTm.iSize;
+if sDtTm.iSize>sDtTm.iMax then prociombDtTm:= -sDtTm.iSize; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sDtTm.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iDtTm:= dDtTm[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проверка *)
+  if sDtTm.mbSize<=0 or
+     mbDtTm[i, 0]<0 or mbDtTm[i, 0]>64 or mbDtTm[i, 1]<1 or mbDtTm[i, 1]>1024 then
+     prociombDtTm:= -2;
+  end_if;
+  (* Считывание настроечных данных *)
+  m:= ANY_TO_DINT(mbDtTm[i, 0]); n:= ANY_TO_DINT(mbDtTm[i, 1]);
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение данных из Modbus в ПЛК *)
+  if nWr Then
+    iDtTm.wrCRC:= CRC16ForModbusRegs(iodMBP_4x, m, n, sDtTm.mbSize);
+    if iDtTm.wrCRC<>iDtTm.rdCRC then
+      iDtTm.wrCount:= iDtTm.wrCount+1; if iDtTm.wrCount>1000000 then iDtTm.wrCount:= 1; end_if;
+      _dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, sDtTm.mbSize);
+  (* ----------------------------------------------------------- *)
+      iDtTm.Year        := ANY_TO_INT( iData[0,    0]);                                    (* Год *)           
+  (* ----------------------------------------------------------- *)
+      iDtTm.Month       := ANY_TO_INT( iData[0,    1]);                                    (* Месяц *)         
+  (* ----------------------------------------------------------- *)
+      iDtTm.Day         := ANY_TO_INT( iData[0,    2]);                                    (* День *)          
+  (* ----------------------------------------------------------- *)
+      iDtTm.Hour        := ANY_TO_INT( iData[0,    3]);                                    (* Часы *)          
+  (* ----------------------------------------------------------- *)
+      iDtTm.Min         := ANY_TO_INT( iData[0,    4]);                                    (* Минуты *)        
+  (* ----------------------------------------------------------- *)
+      iDtTm.Sec         := ANY_TO_INT( iData[0,    5]);                                    (* Секунды *)       
+  (* ----------------------------------------------------------- *)
+      iDtTm.Oper        := ANY_TO_INT( iData[0,    6]);                                    (* Код операции (0: пост. чтение; 1: заполн. данных; 2: установка даты>времени, 3: квитировать всё) *)
+    end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение данных из Modbus в ПЛК *)
+  else
+  (* ----------------------------------------------------------- *)
+    iData[0,    0]    := ANY_TO_WORD(iDtTm.Year);                                        (* Год *)           
+  (* ----------------------------------------------------------- *)
+    iData[0,    1]    := ANY_TO_WORD(iDtTm.Month);                                       (* Месяц *)         
+  (* ----------------------------------------------------------- *)
+    iData[0,    2]    := ANY_TO_WORD(iDtTm.Day);                                         (* День *)          
+  (* ----------------------------------------------------------- *)
+    iData[0,    3]    := ANY_TO_WORD(iDtTm.Hour);                                        (* Часы *)          
+  (* ----------------------------------------------------------- *)
+    iData[0,    4]    := ANY_TO_WORD(iDtTm.Min);                                         (* Минуты *)        
+  (* ----------------------------------------------------------- *)
+    iData[0,    5]    := ANY_TO_WORD(iDtTm.Sec);                                         (* Секунды *)       
+  (* ----------------------------------------------------------- *)
+    iData[0,    6]    := ANY_TO_WORD(iDtTm.Oper);                                        (* Код операции (0: пост. чтение; 1: заполн. данных; 2: установка даты>времени, 3: квитировать всё) *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    7]    :=             iDtTm.pYr;                                          (* Упаковка: Год *) 
+  (* ----------------------------------------------------------- *)
+    iData[0,    8]    :=             iDtTm.pMhDy;                                        (* Упаковка: Месяц*100+День *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    9]    :=             iDtTm.pHrMn;                                        (* Упаковка: Час*100+Минуты *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   10]    :=             iDtTm.pScMS;                                        (* Упаковка: Секунды*1000+МСек *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   11]    := GetWordFromDWord(RealToDWord(iDtTm.MSec), 0);                   (* Скан контроллера (x0.001)|Max=1|Min=0 Low Word *)
+    iData[0,   12]    := GetWordFromDWord(RealToDWord(iDtTm.MSec), 1);                   (* Скан контроллера (x0.001)|Max=1|Min=0 Hi Word *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   13]    :=             iDtTm.PLCState;                                     (* ПЛК: Состояние Резервирования *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+    _dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, sDtTm.mbSize);
+    iDtTm.rdCRC:= CRC16ForModbusRegs(iodMBP_4x, m, n, sDtTm.mbSize);
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dDtTm[i]:= iDtTm;
+i:= i+1; end_while;
+END_FUNCTION
+]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

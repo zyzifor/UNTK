@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="configSafe" ElementGuid="d02e8d47-4573-4b6d-aca3-5742895c0adf" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="configSafe" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="iPrgChange" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION configSafe
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* configSafe          BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* iPrgChange          BOOL                                VarInput   Read            Флаг изменения программы ПЛК *)
+(* i                   DINT                                Var        Read/Write      Счётчик *)
+(* _bRes               BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes               DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+configSafe          := true;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Функция выполняется только при изменении программы ПЛК *)
+if not iPrgChange then configSafe:= false; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sSafe.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iSafe:= dSafe[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Список резервных объектов *)
+  iSafe.nLogicNot:= false;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Индивидуальные настройки объектов *)
+  case i of
+     1: ; (* Защита-1          Защита технологическая                             *)
+  end_case;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dSafe[i]:= iSafe;
+i:= i+1; end_while;
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

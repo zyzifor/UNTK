@@ -1,0 +1,4 @@
+FUNCTION _UdpDebug
+_UdpDebug:= true;
+if iSet then _UdpDebug:= UdpMessage(vDebugIP, iMess); end_if;  
+END_FUNCTION

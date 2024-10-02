@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="configDioCPU" ElementGuid="785e38a0-9638-404c-8c9d-66baa14efe53" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="configDioCPU" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="iPrgChange" DataType="BOOL" InitialValue="" Comment="Флаг изменения программы ПЛК" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION configDioCPU
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* configDioCPU        BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* iPrgChange          BOOL                                VarInput   Read            Флаг изменения программы ПЛК *)
+(* i                   DINT                                Var        Read/Write      Счётчик *)
+(* _bRes               BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes               DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+configDioCPU        := true;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Функция выполняется только при изменении программы ПЛК *)
+if not iPrgChange then configDioCPU:= false; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sDioCPU.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iDioCPU:= dDioCPU[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Список резервных объектов *)
+  iDioCPU.nLogicNot:= false;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Индивидуальные настройки объектов *)
+  case i of
+     1: ; (* А1.03             ЩЭО. МК-502-146 (CPU)                           *)
+        iDioCPU.nDio                    := sDio.A1_03_001_CPU502;       
+        iDioCPU.nMK503SFP               := false;                        
+        iDioCPU.nDtTm                   := sDtTm.DT;
+  end_case;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Наличие портов на ПЛК *)
+	iDioCPU.nSFPPresent  := false;
+	iDioCPU.nP01RSPresent:= false; (* Порт 1RS. Установлен *)
+	iDioCPU.nP02RSPresent:= false; (* Порт 2RS. Установлен *)
+	iDioCPU.nP03FOPresent:= false; (* Порт Fiber Optic/SFP. Установлен *)
+	iDioCPU.nP04Present  := true;  (* Порт 1 Ethernet. Установлен *)
+	iDioCPU.nP05Present  := true;  (* Порт 2 Ethernet. Установлен *)
+	iDioCPU.nP06Present  := true;  (* Порт 3 Ethernet. Установлен *)
+	iDioCPU.nP07Present  := false; (* Порт 4 Ethernet. Установлен *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dDioCPU[i]:= iDioCPU;
+i:= i+1; end_while;
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

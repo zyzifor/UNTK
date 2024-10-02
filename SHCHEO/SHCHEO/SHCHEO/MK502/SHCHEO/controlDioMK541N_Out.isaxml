@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="controlDioMK541N_Out" ElementGuid="0d71328a-d9cc-4751-80d2-db349ba79f68" Comment="" SingleTextLine="Модуль МК-541-002 Modbus RTU" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="controlDioMK541N_Out" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION controlDioMK541N_Out
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* controlDioMK541N    BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* iPrgChange          BOOL                                VarInput   Read            Флаг изменения программы ПЛК *)
+(* i                   DINT                                Var        Read/Write      Счётчик *)
+(* _bRes               BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes               DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+controlDioMK541N_Out:= true;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sDioMK541N.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iDioMK541N:= dDioMK541N[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+  (* Обмен данными *)
+  case i of
+     1: ; (* А1.10             ЩЭО. МК-541-002 (rs485)                            *)
+        iodA1_10_001_RS485NEW:= dDioMK541NData[i].dMBData;
+        iop1rA1_10_001_RS485NEW:= dDioMK541NData[i].yP1Request;
+
+  end_case;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dDioMK541N[i]:= iDioMK541N;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+
+i:= i+1; end_while;
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

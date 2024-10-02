@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="prociombDsc" ElementGuid="e4c93d19-fd1e-43c1-af0b-47f11ebf94de" Comment="" SingleTextLine="Обмен Modbus Dio" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="prociombDsc" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="nWr" DataType="BOOL" InitialValue="" Comment="true - Запись из Modbus в ПЛК/false - чтение из ПЛК в Modbus" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="Результат функции BOOL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="n" DataType="DINT" InitialValue="" Comment="Номер в массиве iodMBP_4x[m].regs[n]" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iReal" DataType="REAL" InitialValue="" Comment="Массив промежуточных данных REAL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="0" />
+    </Variable>
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="m" DataType="DINT" InitialValue="" Comment="Номер в массиве iodMBP_4x[m].regs[n]" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iWord" DataType="WORD" InitialValue="" Comment="Массив промежуточных данных WORD" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="1" />
+    </Variable>
+    <Variable Name="_iRes" DataType="INT" InitialValue="" Comment="Результат функции INT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iData" DataType="WORD" InitialValue="" Comment="Массив промежуточных данных" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="1" />
+      <Dimension Lower="0" Upper="99" />
+    </Variable>
+    <Variable Name="_dRes" DataType="DINT" InitialValue="" Comment="Результат функции DINT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION prociombDsc
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* prociombDsc         BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* nWr                 BOOL                                VarInput   Read            true - Запись из Modbus в ПЛК/false - чтение из ПЛК в Modbus *)
+(* iData               WORD          [0...0,0...99]        Var        Read/Write      Массив промежуточных данных *)
+(* iWord               WORD          [0...1]               Var        Read/Write      Массив промежуточных данных WORD *)
+(* iReal               REAL          [0...0]               Var        Read/Write      Массив промежуточных данных REAL *)
+(* j                   DINT                                Var        Read/Write      Счётчик *)
+(* m                   DINT                                Var        Read/Write      Номер в массиве iodMBP_4x[m].regs[n] *)
+(* n                   DINT                                Var        Read/Write      Номер в массиве iodMBP_4x[m].regs[n] *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+prociombDsc:= sDsc.iSize;
+if sDsc.iSize>sDsc.iMax then prociombDsc:= -sDsc.iSize; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sDsc.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iDsc:= dDsc[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проверка *)
+  if sDsc.mbSize<=0 or
+     mbDsc[i, 0]<0 or mbDsc[i, 0]>64 or mbDsc[i, 1]<1 or mbDsc[i, 1]>1024 then
+     prociombDsc:= -2;
+  end_if;
+  (* Считывание настроечных данных *)
+  m:= ANY_TO_DINT(mbDsc[i, 0]); n:= ANY_TO_DINT(mbDsc[i, 1]);
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение данных из Modbus в ПЛК *)
+  if nWr Then
+    iDsc.wrCRC:= CRC16ForModbusRegs(iodMBP_4x, m, n, sDsc.mbSize);
+    if iDsc.wrCRC<>iDsc.rdCRC then
+      iDsc.wrCount:= iDsc.wrCount+1; if iDsc.wrCount>1000000 then iDsc.wrCount:= 1; end_if;
+      _dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, sDsc.mbSize);
+  (* ----------------------------------------------------------- *)
+      iDsc.Command      :=             iData[0,    2];                                     (* Команды *)       
+      iDsc.cImitOn      := iDsc.Command.0;                                                 (* Команда оператора. Режим имитации Включить *)
+      iDsc.cImitOff     := iDsc.Command.1;                                                 (* Команда оператора. Режим имитации Отключить *)
+      iDsc.cMaskOn      := iDsc.Command.2;                                                 (* Команда оператора. Режим Ремонт Включить *)
+      iDsc.cMaskOff     := iDsc.Command.3;                                                 (* Команда оператора. Режим Ремонт Отключить *)
+      iDsc.cInputOn     := iDsc.Command.4;                                                 (* Команда оператора. Имитировать Включен *)
+      iDsc.cInputOff    := iDsc.Command.5;                                                 (* Команда оператора. Имитировать Отключен *)
+  (* ----------------------------------------------------------- *)
+      iDsc.MsAck_State  :=             iData[0,    4];                                     (* Состояние (Подтверждение) *)
+  (* ----------------------------------------------------------- *)
+      iDsc.tTimer1      :=             iData[0,    6];                                     (* Т01 Фильтрация дребезга <сек.> *)
+    end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение данных из Modbus в ПЛК *)
+  else
+    iDsc.State.0      := iDsc.sOff;                                                      (* Норма *)         
+    iDsc.State.1      := iDsc.sOn;                                                       (* Срабатывание *)  
+    iDsc.State.2      := iDsc.sOn1;                                                      (* Срабатывание *)  
+    iDsc.State.3      := iDsc.sOn2;                                                      (* Срабатывание *)  
+    iDsc.State.4      := iDsc.sOn3;                                                      (* Срабатывание *)  
+    iDsc.State.5      := iDsc.sOn4;                                                      (* Срабатывание *)  
+    iDsc.State.6      := iDsc.sOn5;                                                      (* Срабатывание *)  
+    iDsc.State.7      := iDsc.sOn6;                                                      (* Срабатывание *)  
+    iDsc.State.8      := iDsc.sError;                                                    (* Неисправность канала *)
+    iDsc.State.9      := iDsc.sImit;                                                     (* Имитация *)      
+    iDsc.State.10     := iDsc.sMask;                                                     (* Режим Ремонт *)  
+    iDsc.State.11     := iDsc.sErrM;                                                     (* Неисправен канал Основной *)
+    iDsc.State.12     := iDsc.sErrR;                                                     (* Неисправен канал Резервный *)
+    iDsc.State.13     := iDsc.sInput;                                                    (* Вход для имитации *)
+    iDsc.State.14     := iDsc.nInvert;                                                   (* Инверсия *)      
+    iDsc.State.15     := iDsc.nInputR;                                                   (* Используется Резервирование *)
+    iDsc.State.16     := iDsc.sControl;                                                  (* Контроль цепи. Неисправность *)
+    iDsc.State.17     := iDsc.xInput;                                                    (* Вход *)          
+    iDsc.State.18     := iDsc.xError;                                                    (* Неисправность *) 
+    iDsc.State.19     := iDsc.xInputR;                                                   (* Вход (Резерв) *) 
+    iDsc.State.20     := iDsc.xErrorR;                                                   (* Неисправность (Резерв) *)
+    iDsc.State.21     := iDsc.xControl;                                                  (* Контроль цепи. Неисправность *)
+    iDsc.State.22     := iDsc.xErrCtrl;                                                  (* Контроль цепи. Неисправность (Неисправность) *)
+    iDsc.State.23     := iDsc.nControl;                                                  (* Используется Контр. целостности цепи *)
+    iDsc.State.24     := iDsc.nXX;                                                       (* Для анимации *)  
+    iDsc.State.25     := iDsc.nX;                                                        (* Для анимации *)  
+    iDsc.State.26     := iDsc.nTX;                                                       (* Для анимации *)  
+  (* ----------------------------------------------------------- *)
+    iData[0,    0]    := GetWordFromDWord(iDsc.State, 0);                                (* Состояние Low Word *)
+    iData[0,    1]    := GetWordFromDWord(iDsc.State, 1);                                (* Состояние Hi Word *)
+    iDsc.Command.0    := iDsc.cImitOn;                                                   (* Команда оператора. Режим имитации Включить *)
+    iDsc.Command.1    := iDsc.cImitOff;                                                  (* Команда оператора. Режим имитации Отключить *)
+    iDsc.Command.2    := iDsc.cMaskOn;                                                   (* Команда оператора. Режим Ремонт Включить *)
+    iDsc.Command.3    := iDsc.cMaskOff;                                                  (* Команда оператора. Режим Ремонт Отключить *)
+    iDsc.Command.4    := iDsc.cInputOn;                                                  (* Команда оператора. Имитировать Включен *)
+    iDsc.Command.5    := iDsc.cInputOff;                                                 (* Команда оператора. Имитировать Отключен *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    2]    :=             iDsc.Command;                                       (* Команды *)       
+  (* ----------------------------------------------------------- *)
+    iData[0,    3]    :=             iDsc.sTimer1;                                       (* Т01 Фильтрация дребезга (для ВУ) *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    4]    :=             iDsc.MsAck_State;                                   (* Состояние (Подтверждение) *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    5]    :=             iDsc.MsEvt_Command;                                 (* Команды (Сообщения) *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    6]    :=             iDsc.tTimer1;                                       (* Т01 Фильтрация дребезга <сек.> *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+    _dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, sDsc.mbSize);
+    iDsc.rdCRC:= CRC16ForModbusRegs(iodMBP_4x, m, n, sDsc.mbSize);
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dDsc[i]:= iDsc;
+i:= i+1; end_while;
+END_FUNCTION
+]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

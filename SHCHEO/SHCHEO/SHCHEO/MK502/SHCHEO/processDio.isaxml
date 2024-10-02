@@ -1,0 +1,428 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="processDio" ElementGuid="787e4caf-1755-412f-bc77-32074e859713" Comment="" SingleTextLine="Диагностика модулей (общая) и ввод-вывод" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="processDio" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="nDio" DataType="DINT" InitialValue="" Comment="dDio[nDio] - Номер текущего обрабатываемого объекта" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="iPrgModify" DataType="BOOL" InitialValue="" Comment="Полная перезагрузка ПЛК" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="n" DataType="DINT" InitialValue="" Comment="Базовый номер dDioMod" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_bres" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_pwl_id" DataType="INT" InitialValue="" Comment="Адрес Powerlink" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledPrim" DataType="BOOL" InitialValue="" Comment="Индикатор Prim - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_rack" DataType="INT" InitialValue="" Comment="Корзина" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_blkPrim" DataType="BOOL" InitialValue="" Comment="Индикатор Prim - мигает" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_slot" DataType="INT" InitialValue="" Comment="Слот" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledAct" DataType="BOOL" InitialValue="" Comment="Индикатор Act - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_blkAct" DataType="BOOL" InitialValue="" Comment="Индикатор Act - мигает" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledFOErr" DataType="BOOL" InitialValue="" Comment="Индикатор FOErr - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledLine" DataType="BOOL" InitialValue="" Comment="Индикатор Line - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledRing" DataType="BOOL" InitialValue="" Comment="Индикатор Ring - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledEth" DataType="BOOL" InitialValue="" Comment="Индикатор Eth - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_ledPwl" DataType="BOOL" InitialValue="" Comment="Индикатор Pwl - горит" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION processDio
+processDio:= -nDio;
+if nDio<1 or nDio>sDio.iSize then return; end_if;									(* проверка выхода за диапазон *)
+processDio:= nDio;
+(* ------------------------------------------------------ *)
+(* Проход по nDio *)
+iDio:= dDio[nDio]; 
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+if not dDio[nDio].nLogicNot then
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сохраняемые переменные (чтение при первом скане) *)
+if iPrgModify then
+  iDio.sTest          := rDio[nDio].sTest;                        (* Режим: Тестирование *)
+  iDio.DData          := rDio[nDio].DData;                        (* Данные дискретных каналов *)
+  iDio.mA             := rDio[nDio].mA;                           (* Данные аналоговых  каналов (mA*1000) *)
+  iDio.ADC            := rDio[nDio].ADC;                          (* Данные аналоговых  каналов (код АЦП) *)
+  iDio.AData          := rDio[nDio].AData;                        (* Данные аналоговых каналов *)
+  iDio.HData          := rDio[nDio].HData;                        (* Данные аналоговых каналов Hart *)
+end_if;
+(* ------------------------------------------------------ *)
+(* Базовый номер dDioMod *)
+n:= sDioMod.DIO;
+(* ------------------------------------------------------ *)
+(* Режим: Тестирование *)
+iDio.sTest     := (iDio.sTest or iDio.cTestOn) & not iDio.cTestOff;
+(* обработка состояний *)
+iDio.sNotModule:= dDioMod[n].nIOModuleDiag.productCode=0;
+                                                                                  (* Модуль не установлен *)
+iDio.sNotComp  := not iDio.sNotModule & not dDioMod[n].nIOModuleDiag.isCompatible; (* dDioMod[n].nIOModuleDiag.productCode<>iDio.nType; *)				                               
+																				  (* Не совместимый модуль *)	
+iDio.sNotCAN1  := not iDio.sNotModule & dDioMod[n].nIOModuleDiag.CAN1heartbeat<>5;					  
+                                                                                  (* BusA Отсутствует соединение CAN *)
+iDio.sNotCAN2  := not iDio.sNotModule & dDioMod[n].nIOModuleDiag.CAN2heartbeat<>5;				      
+                                                                                  (* BusB Отсутствует соединение CAN *)
+iDio.sHWError  := dDioMod[n].nIOModuleDiag.state=7;                               (* Аппаратная неисправность *)
+(* ------------------------------------------------------ *)
+(* Неисправность каналов *)
+iDio.fChError:= (iDio.sNotComp or iDio.sNotModule or (iDio.sNotCAN1 & iDio.sNotCAN2)) & not iDio.sTest;
+iDio.sChError:= ((iDio.nTimer1>0.0 & (iDio.sChError or iDio.mTimer1=-1.0)) or 
+                  iDio.nTimer1=0.0)                                        & iDio.fChError;
+(* Сразу, при первом скане *)
+if iDio.nDtTm>=1 & 	iDio.nDtTm<=sDtTm.iSize then
+  if dDtTm[iDio.nDtTm].sPrgModify then iDio.sChError:= iDio.sChError or iDio.fChError; end_if;
+end_if;
+(* ------------------------------------------------------ *)
+(* В норме *)
+iDio.sOk       := not (iDio.sNotModule or iDio.sNotComp or (iDio.sNotCAN1 & iDio.sNotCAN2));
+(* Неисправность модуля *)
+iDio.sError    := iDio.sNotModule or iDio.sNotComp or iDio.sNotCAN1 or iDio.sNotCAN2 or iDio.sNotPwrExt or iDio.sHWError;
+(* Сброс признака HART *)
+iDio.yHart     := false;
+(* ------------------------------------------------------ *)
+(* Всегда делаем режим считывание с мА *)
+iDio.nADatamA:= true;
+iDio.nTestmA := true;		 
+(* ------------------------------------------------------ *)
+(* светодиодная индикация - горит *)
+iDio.ledRun := dDioMod[n].nIOModuleDiag.productCode<>0;
+iDio.ledBusA:= iDio.ledRun & not iDio.sNotComp;
+iDio.ledBusB:= iDio.ledRun & not iDio.sNotComp;
+(* светодиодная индикация - мигает *)
+iDio.blkBusA:= iDio.ledRun &     iDio.sNotCAN1 & not iDio.sNotComp;
+iDio.blkBusB:= iDio.ledRun &     iDio.sNotCAN2 & not iDio.sNotComp;
+(* ------------------------------------------------------ *)
+(* корзина и слот модуля *)
+_pwl_id:= ANY_TO_INT(iDio.nPlace/10000);
+_rack  := ANY_TO_INT(iDio.nPlace/100  -iDio.nPlace/10000*100);
+_slot  := ANY_TO_INT(iDio.nPlace      -iDio.nPlace/100  *100);
+(* ------------------------------------------------------ *)
+(* размер каналов IO *)
+if    iDio.nType=100550024 then iDio.nSize:= 0; 		(* МК-550-024	psu *)
+elsif iDio.nType=100501022 then iDio.nSize:= 0; 		(* МК-501-022	cpu501 *)
+elsif iDio.nType=100502142 then iDio.nSize:= 0; 		(* МК-502-142	cpu502 *)
+elsif iDio.nType=100503120 then iDio.nSize:= 0; 		(* МК-503-120	cpu503 *)
+elsif iDio.nType=100545010 then iDio.nSize:= 0;  		(* МК-545-010	cn545 *)
+elsif iDio.nType=100513016 
+   or iDio.nType=100513116                              (* МК-513-016	ai16 *)
+   or iDio.nType=100576116 then iDio.nSize:= 16; 		(* МК-576-116	ai16hart *)
+                                iDio.DData:= 0;  iDio.DError:= 0;						
+														(* сброс Включен и Ошибки *)
+elsif iDio.nType=100516108                        		(* МК-516-008	ai8a *)
+   or iDio.nType=100516008                              (* МК-516-008	ai8 *)
+   or iDio.nType=100576108 then iDio.nSize:= 8; 		(* МК-576-108	ai8hart *)
+             					iDio.DData:= 0;  iDio.DError:= 0;						
+														(* сброс Включен и Ошибки *)
+elsif iDio.nType=100521032                              (* MK-521-032	di32 *)
+   or iDio.nType=100521132 then iDio.nSize:= 32; 		(* MK-521-032	di32a *)
+elsif iDio.nType=100514008                              (* МК-514-008	ao8 *)
+   or iDio.nType=100514108 						 		(* МК-514-108	ao8 *)
+   or iDio.nType=100574108 then iDio.nSize:= 8; 		(* МК-574-108	ao8ahart *)
+             					iDio.DData:= 0;  iDio.DError:= 0;						
+														(* сброс Включен и Ошибки *)
+elsif iDio.nType=100531032                              (* MK-531-032	do32 *)	
+   or iDio.nType=100531132 then iDio.nSize:= 32; 		(* MK-531-032	do32a *)			
+elsif iDio.nType=100541002 then iDio.nSize:= 0; 		(* МК-541-002	rs485 *)			
+end_if;
+(* ------------------------------------------------------ *)
+(* диагностика CPU и Powerlink *)
+iDio.ledErr:= false;  iDio.blkErr:= false;
+(* ------------------------------------------------------ *)
+(* наличие неисправного модуля PSU *)
+if iDio.nType=100550024  then
+  iDio.sNotPwrExt:= dDioMod[n].nIOModuleDiag.state=1; (* Нет питания 24В на модуле *)
+  iDio.ledErr:= iDio.sNotPwrExt or dDioMod[n].nIOModuleDiag.state=7;
+  iDio.blkErr:= dDioMod[n].nIOModuleDiag.state=2 or dDioMod[n].nIOModuleDiag.state=3 or dDioMod[n].nIOModuleDiag.state=4;
+else (* наличие неисправности остальных модулей *)
+  iDio.ledErr:= dDioMod[n].nIOModuleDiag.state=7 or dDioMod[n].nIOModuleDiag.state=5 or dDioMod[n].nIOModuleDiag.state=6; 
+  iDio.blkErr:= dDioMod[n].nIOModuleDiag.state=5 or dDioMod[n].nIOModuleDiag.state=6;
+end_if;  
+(* ------------------------------------------------------ *)
+(* наличие неисправного модуля в локальном сегменте CAN *)
+if iDio.nType=100501022 or  				
+   iDio.nType=100502142 or
+   iDio.nType=100503120 or
+   iDio.nType=100545010 then
+  i:= 1;   while i<=ANY_TO_DINT(sDio.iSize-1) do
+    if _pwl_id=ANY_TO_INT(dDio[i].nPlace/10000) & i<>nDio then 
+      iDio.ledErr:= not (iDio.sNotComp or iDio.sNotModule) & (iDio.ledErr or dDio[i].sNotComp or dDio[i].sNotModule);
+      iDio.blkErr:= not (iDio.sNotComp or iDio.sNotModule) & (iDio.blkErr or dDio[i].sNotComp or dDio[i].sNotModule);
+    end_if;
+  i:= i+1; end_while;
+end_if;  
+(* ------------------------------------------------------ *)
+(* наличие неисправного модуля Powerlink *)
+if iDio.nType=100501022 or  				
+   iDio.nType=100502142 or
+   iDio.nType=100503120 then
+  i:= 1;   while i<=ANY_TO_DINT(sDio.iSize-1) do
+    if (dDio[i].nPlace/10000<>240) & dDio[i].nType=100545010 then 
+      iDio.ledErr:= not (iDio.sNotComp or iDio.sNotModule) & (iDio.ledErr or dDio[i].ledErr or dDio[i].sNotModule);
+      iDio.blkErr:= not (iDio.sNotComp or iDio.sNotModule) & (iDio.blkErr or dDio[i].blkErr or dDio[i].sNotModule);
+    end_if;
+  i:= i+1; end_while; 
+end_if;  
+(* ------------------------------------------------------ *)
+(* обработка каналов IO *)
+if    iDio.nType=100550024 then  	(* psu ---------------------- *)
+  if    not iDio.sTest then
+    iDio.mA[0]:= ANY_TO_WORD(ANY_TO_INT(dDioMod[n].nPSUDiag.voltage*100.0));	(* Выходное напряжение, Вх100.0 *)
+	iDio.mA[1]:= dDioMod[n].nPSUDiag.errorCode;								(* Код ошибки работы модуля *)														
+  end_if;   
+(* ------------------------------------------------------ *)
+elsif iDio.nType=100501022 or 
+      iDio.nType=100502142 or 
+	  iDio.nType=100503120 then   	(* cpu ---------------------- *)
+  ;   
+(* ------------------------------------------------------ *)
+elsif iDio.nType=100513016 or 
+      iDio.nType=100513116 then   	(* ai 16 ----------------------- *)
+  i:= 0;  while i<=ANY_TO_DINT(iDio.nSize-1) do 
+    if    not iDio.sTest & not (iDio.sNotComp or iDio.sNotModule) then
+	  iDio.ADC[i]:= dDioMod[n].WORD16[i];										(* код АЦП *)
+	  iDio.mA[i] := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/16383.0)*24820.0);	(* мА*1000 *)
+	elsif iDio.sTest then
+	  if iDio.nTestmA then
+	    iDio.ADC[i]:= ANY_TO_WORD((ANY_TO_REAL(iDio.mA[i])/24820.0)*16383.0);	(* преобразование в код АЦП когда включен nTestmA *)
+	  else 
+  	    iDio.mA[i]   := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/16383.0)*24820.0);(* мА*1000 *)
+	  end_if;
+	end_if;
+    if iDio.nADatamA then iDio.AData[i]:= iDio.mA[i]; else iDio.AData[i]:= iDio.ADC[i]; end_if;
+																				(* перекладка в AData *)
+	(* Горит номер канала *)
+	iDio.DData := SetBitToDWord(iDio.ADC[i]>2376 & iDio.ADC[i]<13464, i,     iDio.DData);
+	(* Мигает номер канала *)
+	iDio.DData := SetBitToDWord(iDio.ADC[i]>=13500,                   i+16,  iDio.DData);
+    iDio.DError:= SetBitToDWord(iDio.sChError, i, iDio.DError);
+  i:=i+1; end_while;
+(* ------------------------------------------------------ *)
+elsif iDio.nType=100576116 then   	(* ai 16 ----------------------- *)
+	  iDio.HData:= dDioMod[n].HARTChannel16;
+      iDio.yHart:= true;
+      if iDio.nDioR>0 and iDio.nDioR<=sDio.iSize then 
+	    dDio[iDio.nDioR].sReserv:= true;
+	    iDio.sReserv            := false;
+      end_if;
+  i:= 0;  while i<=ANY_TO_DINT(iDio.nSize-1) do 
+    if    not iDio.sTest & not (iDio.sNotComp or iDio.sNotModule) then
+	  iDio.ADC[i]:= dDioMod[n].WORD16[i];										(* код АЦП *)
+	  iDio.mA[i] := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/65535.0)*25000.0);	(* мА*1000 *)
+	elsif iDio.sTest then
+	  if iDio.nTestmA then
+	    iDio.ADC[i]:= ANY_TO_WORD((ANY_TO_REAL(iDio.mA[i])/25000.0)*65535.0);	(* преобразование в код АЦП когда включен nTestmA *)
+	  else 
+  	    iDio.mA[i]   := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/65535.0)*25000.0);(* мА*1000 *)
+	  end_if;
+	end_if;
+    if iDio.nADatamA then iDio.AData[i]:= iDio.mA[i]; else iDio.AData[i]:= iDio.ADC[i]; end_if;
+																				(* перекладка в AData *)
+	(* Горит номер канала *)
+	iDio.DData := SetBitToDWord(iDio.ADC[i]>9436 & iDio.ADC[i]<53477, i,     iDio.DData);
+	(* Мигает номер канала *)
+	iDio.DData := SetBitToDWord(iDio.ADC[i]>=53477,                   i+16,  iDio.DData);
+    iDio.DError:= SetBitToDWord(iDio.sChError, i, iDio.DError);
+    (* ai16hart 100576116 *)
+    iDio.DError := SetBitToDWord(iDio.HData[i].hartSelected>0 and not iDio.sDisableHART,       i+16,  iDio.DError);
+    if iDio.sDisableHART then iDio.HData[i].hartSelected:= 0; end_if; 
+  i:=i+1; end_while;
+(* ------------------------------------------------------ *)
+elsif iDio.nType=100516008 or
+      iDio.nType=100516108 or 
+	  iDio.nType=100576108 then   	(* ai8----------------------- *)
+        if iDio.nType=100576108 then  
+		  iDio.HData:= dDioMod[n].HARTChannel16;							   
+          iDio.yHart:= true;
+		end_if;
+      if iDio.nDioR>0 and iDio.nDioR<=sDio.iSize then 
+	    dDio[iDio.nDioR].sReserv:= true;
+	    iDio.sReserv            := false;
+      end_if;
+  i:= 0;  while i<=ANY_TO_DINT(iDio.nSize-1) do 
+    if    not iDio.sTest & not (iDio.sNotComp or iDio.sNotModule) then
+	  iDio.ADC[i]:= dDioMod[n].WORD08[i];										(* код АЦП *)
+	  iDio.mA[i] := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/65535.0)*25000.0);	(* мА*1000 *)
+	elsif iDio.sTest then
+	  if iDio.nTestmA then
+	    iDio.ADC[i]:= ANY_TO_WORD((ANY_TO_REAL(iDio.mA[i])/25000.0)*65535.0);  	(* преобразование в код АЦП когда включен nTestmA *)
+	  else 
+  	    iDio.mA[i]   := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/65535.0)*25000.0);(* мА*1000 *)
+	  end_if;
+	end_if;
+    if iDio.nADatamA then iDio.AData[i]:= iDio.mA[i]; else iDio.AData[i]:= iDio.ADC[i]; end_if;
+																				(* перекладка в AData *)
+	(* Горит номер канала *)
+	iDio.DData := SetBitToDWord(iDio.ADC[i]>9436 & iDio.ADC[i]<53477, i,     iDio.DData);
+	(* Мигает номер канала *)
+	iDio.DData := SetBitToDWord(iDio.ADC[i]>=53477,                   i+16,  iDio.DData);
+    iDio.DError:= SetBitToDWord(iDio.sChError, i, iDio.DError);
+    (* ai8hart 100576108 *)
+	if iDio.nType=100576108 then
+	  (*iDio.HData[1].communicationError = *)
+	  iDio.HData[i]:= dDioMod[n].HARTChannel08[i]; 
+	  iDio.DError := SetBitToDWord(iDio.HData[i].hartSelected>0 and not iDio.sDisableHART,       i+16,  iDio.DError);
+	end_if;
+    if iDio.sDisableHART then iDio.HData[i].hartSelected:= 0; end_if; 
+  i:=i+1; end_while;
+(* ------------------------------------------------------ *)
+elsif iDio.nType=100521032
+   or iDio.nType=100521132 then		(* di ----------------------- *)
+  i:= 0;  while i<=ANY_TO_DINT(iDio.nSize-1) do 
+    if    not iDio.sTest & not (iDio.sNotComp or iDio.sNotModule) then
+	  iDio.DData := SetBitToDWord(dDioMod[n].DI32Inputs32[i].input, i, iDio.DData);	(* значение входа *)
+	end_if;	
+    (* Неисправность канала *)
+	iDio.DError:= SetBitToDWord(iDio.sChError, i, iDio.DError);
+  i:=i+1; end_while;
+(* ------------------------------------------------------ *)
+elsif iDio.nType=100514008 
+   or iDio.nType=100514108 
+   or iDio.nType=100574108 then		(* ao ----------------------- *)
+    if iDio.nType=100574108 then  
+      iDio.yHart:= true;
+	end_if;
+    if iDio.nDioR>0 and iDio.nDioR<=sDio.iSize then 
+	  dDio[iDio.nDioR].sReserv := true;
+	  iDio.sReserv             := false;
+      dDio[iDio.nDioR].sTest   := iDio.sTest;
+      dDio[iDio.nDioR].nADatamA:= iDio.nADatamA;
+      dDio[iDio.nDioR].nTestmA := iDio.nTestmA;
+   end_if;
+    i:= 0;  while i<=ANY_TO_DINT(iDio.nSize-1) do 
+    if iDio.nADatamA or iDio.nTestmA then 
+	  if not iDio.sTest then 
+	    iDio.mA[i] := iDio.AData[i]; 				                                               (* мА*1000 *)
+	  elsif iDio.nDioR>0 and iDio.nDioR<=sDio.iSize then 
+		(* ------------------------------------------------------ *)
+		dDio[iDio.nDioR].mA[i]:= iDio.mA[i];                                                       (* мА*1000 *)
+	  end_if;
+	  (* Ограничение *)
+	  if iDio.mA[i] > 20400 then 
+		   iDio.mA[i] := 20400;
+	  end_if;
+	  if iDio.mA[i] < 3600 then 
+		   iDio.mA[i] := 3600;
+	  end_if;
+  	  iDio.ADC[i]:= ANY_TO_WORD((ANY_TO_REAL(iDio.mA[i])/24000.0)*65535.0); 	                       (* код АЦП *)
+	else 
+	  if not iDio.sTest then 
+	    iDio.ADC[i]:= iDio.AData[i];                             				                   (* код АЦП *)
+	  elsif iDio.nDioR>0 and iDio.nDioR<=sDio.iSize then 
+	    dDio[iDio.nDioR].ADC[i]:= iDio.ADC[i]; 
+	  end_if;
+	  iDio.mA[i] := ANY_TO_WORD((ANY_TO_REAL(iDio.ADC[i])/65535.0)*24000.0);	                   (* мА*1000 *)
+	end_if; 
+    dDioMod[n].WORD08[i]:= iDio.ADC[i];										                       (* значение выхода *)
+	(* Горит номер канала *) 
+	iDio.DData := SetBitToDWord(AND_MASK_BYTE(dDioMod[n].BYTE08[i], 2#1011)=0,  i,      iDio.DData);
+	(* Мигает номер канала *)
+	iDio.DData := SetBitToDWord(false,  i+16,   iDio.DData);
+    (* Неисправность канала *) 
+	iDio.DError:= SetBitToDWord(iDio.sChError or 
+	                            ((GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),0) or 
+								  GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),1) or 
+								  GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),3)) & not iDio.sTest), i, iDio.DError);
+    (* Состояние канала *) 
+	iDio.Extend:= SetBitToDWord(GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),0),  i*4,   iDio.Extend);
+	iDio.Extend:= SetBitToDWord(GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),1),  i*4+1, iDio.Extend);
+	iDio.Extend:= SetBitToDWord(GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),2),  i*4+2, iDio.Extend);
+	iDio.Extend:= SetBitToDWord(GetBitFromWord(ANY_TO_WORD(dDioMod[n].BYTE08[i]),3),  i*4+3, iDio.Extend);
+    (* ao08hart 100574108 *)
+	if iDio.nType=100574108 then ;
+	  iDio.HData[i]:= dDioMod[n].HARTChannel08[i]; 
+	  iDio.DError := SetBitToDWord(iDio.HData[i].hartSelected>0 and not iDio.sDisableHART,       i+16,  iDio.DError);
+      if iDio.sDisableHART then iDio.HData[i].hartSelected:= 0; end_if; 
+	end_if;
+  i:=i+1; end_while;
+  (* ---------------------------------------------------- *)
+elsif iDio.nType=100531032
+   or iDio.nType=100531132 then   	(* do ----------------------- *)
+  i:= 0;  while i<=ANY_TO_DINT(iDio.nSize-1) do 
+    dDioMod[n].DO32Outputs32[i].output:= GetBitFromDWord(iDio.DData, i);     			(* значение выхода *)
+    iDio.DError:= SetBitToDWord(iDio.sChError, i, iDio.DError);
+  i:=i+1; end_while;
+end_if; 
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Фильтр поканальной неисправности *)
+iDio.mTimer1:= _fTimer(
+  Start := iDio.fChError, 
+  Stop  := iDio.sChError,
+  tTimer:= iDio.nTimer1,
+  mTimer:= iDio.mTimer1);
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Управление HART модуля *)
+if iDio.yHart then 
+  (* *)
+  if iDio.nDioR>0 then
+     iDio.sDisableHART := false;
+  	if iDio.sNotModule or iDio.sNotComp or (iDio.sNotCAN1 and iDio.sNotCAN2) or iDio.sNotPwrExt or iDio.sHWError then
+    	iDio.sDisableHART:= true;
+  	(* elsif iDio.nDioR>0 and iDio.sHWError then  
+    	iDio.sDisableHART:= (iDio.nType=100576116) or (iDio.nType=100576108) or (iDio.nType=100574108); *)
+  	end_if;
+ 	(* *) 	
+  	 if iDio.nDioR>0 and iDio.nDioR<=sDio.iSize then 
+    	if dDio[iDio.nDioR].sNotModule or dDio[iDio.nDioR].sNotComp or (dDio[iDio.nDioR].sNotCAN1 and dDio[iDio.nDioR].sNotCAN2)
+   		        					   or dDio[iDio.nDioR].sNotPwrExt or  dDio[iDio.nDioR].sHWError then
+			iDio.sDisableHART:= false;					  
+  	   end_if;
+	   dDio[iDio.nDioR].sDisableHART := not iDio.sDisableHART;
+	end_if;
+  else 
+  	if not iDio.sReserv and not (iDio.nDioR>0 and iDio.nDioR<=sDio.iSize)then 
+		iDio.sDisableHART := false;
+	end_if;
+  end_if;
+  (* *)
+  dDioMod[n].nHARTControl.disableHART:= iDio.sDisableHART; 
+end_if;  
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Cообщения для команд *)
+  iDio.oMsAck_State:= iDio.MsAck_State;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сохраняемые переменные (сохранение данных) *)
+rDio[nDio].sTest         :=   iDio.sTest;                         (* Режим: Тестирование *)
+rDio[nDio].DData         :=   iDio.DData;                         (* Данные дискретных каналов *)
+rDio[nDio].mA            :=   iDio.mA;                            (* Данные аналоговых  каналов (mA*1000) *)
+rDio[nDio].ADC           :=   iDio.ADC;                           (* Данные аналоговых  каналов (код АЦП) *)
+rDio[nDio].AData         :=   iDio.AData;                         (* Данные аналоговых каналов *)
+rDio[nDio].HData         :=   iDio.HData;                         (* Данные аналоговых каналов Hart *)
+(* ------------------------------------------------------ *)
+(* сброс команд *)
+iDio.cTestOn		:= false;
+iDio.cTestOff		:= false;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+dDio[nDio]:= iDio;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резервных объектов: Сброс состояния объекта *)
+if dDio[nDio].nLogicNot & not dDio[nDio].oLogicNot then
+  dDio[nDio].sOk           := false;                                (* В норме *)       
+  dDio[nDio].sTest         := false;                                (* Режим: Тестирование *)
+  dDio[nDio].sNotComp      := false;                                (* Установлен не совместимый модуль *)
+  dDio[nDio].sNotModule    := false;                                (* Модуль не установлен *)
+  dDio[nDio].sNotCAN1      := false;                                (* BusA Отсутствует соединение CAN *)
+  dDio[nDio].sNotCAN2      := false;                                (* BusB Отсутствует соединение CAN *)
+  dDio[nDio].sError        := false;                                (* Неисправность модуля *)
+  dDio[nDio].sNotPwrExt    := false;                                (* Нет питания 24В на модуле *)
+  dDio[nDio].sChError      := false;                                (* Неисправность каналов *)
+  dDio[nDio].sFONotLink    := false;                                (* Порт Fiber Optic/SFP. Нет связи
+ *)
+  dDio[nDio].sP1NotLink    := false;                                (* Порт 1 Ethernet. Нет связи *)
+  dDio[nDio].sP2NotLink    := false;                                (* Порт 2 Ethernet. Нет связи *)
+  dDio[nDio].sP3NotLink    := false;                                (* Порт 3 Ethernet. Нет связи *)
+  dDio[nDio].sP4NotLink    := false;                                (* Порт 4 Ethernet. Нет связи *)
+  dDio[nDio].sFOLink       := false;                                (* Порт Fiber Optic/SFP. Есть связь
+ *)
+  dDio[nDio].sP1Link       := false;                                (* Порт 1 Ethernet. Есть связь *)
+  dDio[nDio].sP2Link       := false;                                (* Порт 2 Ethernet. Есть связь *)
+  dDio[nDio].sP3Link       := false;                                (* Порт 3 Ethernet. Есть связь *)
+  dDio[nDio].sP4Link       := false;                                (* Порт 4 Ethernet. Есть связь *)
+(* maskStateNone=1073610815 *)
+end_if;
+dDio[nDio].oLogicNot:= dDio[nDio].nLogicNot;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+i:= i+1; 
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

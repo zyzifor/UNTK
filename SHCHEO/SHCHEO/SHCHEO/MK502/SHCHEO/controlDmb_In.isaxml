@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="controlDmb_In" ElementGuid="fb050dd3-9f19-432f-aa2d-117b8a3e52e7" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="controlDmb_In" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="Результат функции BOOL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPrgModify" DataType="BOOL" InitialValue="" Comment="Полная перезагрузка ПЛК" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION controlDmb_In
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Модуль ввода данных - Dmb (обмен по Modbus/RTU). Сформирован: 07.08.2024 17:19 *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Функция не выполняется при перезагрузке программы ПЛК *)
+controlDmb_In:= true;
+if nPrgModify then controlDmb_In:= false; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* №=  1 СЭО-1      ШЭО (система электрообогрева)  Группа параметров 1                                          *)
+(* №=0 AIW08 Виртуальный модуль ввода-вывода *)
+(* --- данные каналов ввода-вывода *)
+dAna[ 18].xCurr                    := dDmbData[  1].WData[0, 0];      (* Параметр-RS485 УНТК Параметр RS485 *)
+(* №=1 AIW04 Виртуальный модуль ввода-вывода *)
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

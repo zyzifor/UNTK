@@ -1,0 +1,22 @@
+FUNCTION crutchMot
+crutchMot := 1;
+(* reqAna - номер запрашиваемого объекта (это значение в Modbus пишет панель) *)
+Size := 2;
+m := 63;
+n := 9;
+_dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, Size);
+reqMot := ANY_TO_DINT(iData[0, 0]);
+IF reqMot = 0 THEN
+	ansMot := 1;
+ELSIF reqMot <= sMot.iMax THEN
+	IF Rd THEN
+		dMot[ansMot] := dMot[1];
+	ELSE
+		dMot[1] := dMot[reqMot];
+		ansMot := reqMot;
+	END_IF;
+END_IF;
+(* ansAna - номер выдаваемого объекта (это значение в Modbus пишет контроллер) *)
+iData[0, 1] := ANY_TO_WORD(ansMot);
+_dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, Size);
+END_FUNCTION

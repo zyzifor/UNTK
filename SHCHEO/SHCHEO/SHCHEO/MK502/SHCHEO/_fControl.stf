@@ -1,0 +1,6 @@
+FUNCTION _fControl
+_fControl:= cmd or (state & ch);
+
+
+
+END_FUNCTION

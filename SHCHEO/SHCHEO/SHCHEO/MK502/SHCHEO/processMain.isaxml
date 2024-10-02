@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="processMain" ElementGuid="889347ce-49a5-405c-b3a6-5668928594a2" Comment="" SingleTextLine="Основная вызывающая программа" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Program />
+  <LocalVars>
+    <Variable Name="iDio_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioPwl_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioCPU_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioMK541N_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDio_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioPwl_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioCPU_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioMK541N_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDtTm_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDtTm_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_dRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iAna_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iAna_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDsc_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDso_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDsc_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDso_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iMot_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iMot_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iSafe_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iMsGrS32_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iSets_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iSets_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlr_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlr_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlv_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlv_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iReg_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iReg_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iMsGrS32_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPrmGrp_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPrmGrp_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDmb_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioTCP_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDmbTCP_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDmbTCP_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDioTCP_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iDmb_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="test" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPcAna_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPcAna_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPcDsc_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iPcDsc_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlrInMB_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iMode_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iMode_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iSafe_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iCmdLink_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iCmdLink_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUVP280_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUVP280_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUVP280TP_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUVP280TP_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUPPMb_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUPPMb_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iCHRPMb_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iCHRPMb_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iAnPressure_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iAnPressure_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlvChb_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlvChb_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlrChb_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlrChb_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlrAltivar_iRes" DataType="DINT" InitialValue="" Comment="Результат выполнения функции process" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVlrAltivar_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUVP280EnvSet_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iUVP280EnvSet_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iInit_bRes" DataType="BOOL" InitialValue="" Comment="Результат выполнения функции control" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVent_iRes" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iVent_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[PROGRAM processMain
+(* ------------------------------------------------------ *)
+(* Для отладки *)
+iInit_bRes  := controlInit ();
+vDebugIP:= '10.155.23.98';
+(* ------------------------------------------------------ *)
+(* Link - идентификатор *)
+nIdnLink:= 30000;
+(* ------------------------------------------------------ *)
+(* Начало обратки программы *)                                                                 _bRes:= _UdpDebug(vDebugMain, '*processMain -------------- '); 
+(* ------------------------------------------------------ *)
+(* DtTm	Системное дата/время *)	
+iDtTm_iRes        := prociombDtTm(true);
+iDtTm_bRes        :=   configDtTm(nPrgChange);
+iDtTm_bRes        :=  controlDtTm();
+iDtTm_iRes        :=  processDtTm(nPrgModify);
+iDtTm_iRes        := prociombDtTm(false);                                                      _bRes:= _UdpDebug(vDebugMain, '*processDtTm');
+(* ------------------------------------------------------ *)
+(* Определение полной загрузки и изменения программы ПЛК *)
+nPrgModify        := dDtTm[sDtTm.DT].sPrgModify;
+nPrgChange        := dDtTm[sDtTm.DT].sPrgChange;
+(* ------------------------------------------------------ *)
+(* Dio	Данные ввода-вывода	 *)
+iDio_bRes         := controlDio();                           
+iDio_iRes         := prociombDio(true);
+iDio_iRes         := crutchDio(true);
+(* ------------------------------------------------------ *)
+(* Входные данные *)
+iDio_bRes         :=       controlDio_In();            (* Данные ввода-вывода *)               _bRes:= _UdpDebug(vDebugMain, '*controlDio_In');
+(*iDio_iRes    	  := processPnlDio();*)
+iDioMK541N_bRes   := controlDioMK541N_In(nPrgModify);  (* Данные ввода-вывода Modbus/RTU *)    _bRes:= _UdpDebug(vDebugMain, '*controlDioMK541N_In');
+iDmb_bRes         :=       controlDmb_In(nPrgModify);  (* Данные Modbus/RTU *)                 _bRes:= _UdpDebug(vDebugMain, '*controlDmb_In');
+(* ------------------------------------------------------ *)
+(* MsGrS32	Сообщения (передаточный объект)	*)	
+iMsGrS32_bRes     :=   configMsGrS32(nPrgChange);
+(* ------------------------------------------------------ *)
+(* Sets	Уставки объектов *)	
+iSets_iRes        :=  prociombSets(true);
+iSets_iRes        :=  crutchSets(true);
+iSets_iRes        :=   processSets(nPrgChange);
+iSets_iRes        :=  crutchSets(false);
+iSets_iRes        :=  prociombSets(false);                                                     _bRes:= _UdpDebug(vDebugMain, '*processSets'); 
+(* ------------------------------------------------------ *)
+(* DioCPU	Диагностика модулей CPU *)	
+iDioCPU_bRes      :=   configDioCPU(nPrgChange);
+iDioCPU_iRes      := prociombDioCPU(true);
+iDioCPU_bRes      :=  controlDioCPU();
+iDioCPU_iRes      :=  processDioCPU_502(nPrgModify);
+(*iDioCPU_iRes      :=  processPnlDioCPU();*)
+iDioCPU_iRes      := prociombDioCPU(false);                                                    _bRes:= _UdpDebug(vDebugMain, '*processDioCPU');    
+(* ------------------------------------------------------ *)
+(* Dmb	Данные ввода-вывода (Modbus/RTU)		*)
+iDmb_iRes         := prociombDmb(true);                                                       
+iDmb_bRes         :=   configDmb(nPrgChange);
+iDmb_bRes         :=  controlDmb();
+iDmb_iRes         :=  processDmb(nPrgModify);
+iDmb_iRes         := prociombDmb(false);                                                       _bRes:= _UdpDebug(vDebugMain, '*processDmb');
+(* ------------------------------------------------------ *)
+(* Ana	Аналоговые параметры *)
+iAna_bRes         :=   configAna(nPrgChange);
+iAna_iRes         := prociombAna(true);
+iAna_iRes     	  := crutchAna(true);
+iAna_bRes         := controlAna();
+iAna_iRes         := processAna(nPrgModify);
+(*iAna_iRes         := processPnlAna();*)
+iAna_iRes         := procsetsAna();
+iAna_iRes         := crutchAna(false);
+iAna_iRes         := prociombAna(false);                                                       _bRes:= _UdpDebug(vDebugMain, '*processAna');   
+(* ------------------------------------------------------ *)
+(* Dsc	Дискретные входные параметры *)
+iDsc_bRes         :=   configDsc(nPrgChange);    
+iDsc_iRes         := prociombDsc(true);
+iDsc_iRes         := crutchDsc(true);
+iDsc_bRes         :=  controlDsc();    
+iDsc_iRes         :=  processDsc(nPrgModify);
+(*iDsc_iRes         := processPnlDsc();*)
+iDsc_iRes         := procsetsDsc();
+iDsc_iRes         := crutchDsc(false);
+iDsc_iRes         := prociombDsc(false);                                                       _bRes:= _UdpDebug(vDebugMain, '*processDsc');   
+(* ------------------------------------------------------ *)
+(* Safe	Технологическая защита	 *)
+iSafe_bRes        :=   configSafe(nPrgChange);
+iSafe_iRes        := prociombSafe(true);
+(*iSafe_iRes         := prociombpSafe(true);*)
+iSafe_bRes        :=  controlSafe();
+iSafe_iRes        :=  processSafe(nPrgModify);
+(*iSafe_iRes         := processPnlSafe();*)
+iSafe_iRes        := procsetsSafe();
+(*iSafe_iRes         := prociombpSafe(false);*)
+iSafe_iRes        := prociombSafe(false);                                                      _bRes:= _UdpDebug(vDebugMain, '*processSafe');   
+(* ------------------------------------------------------ *)
+(* Dso	Дискретные параметры управления *)
+iDso_bRes         :=   configDso(nPrgChange);    
+(*iDso_iRes         := prociombDso(true);*)
+(*iDso_iRes         := prociombpDso(true);*)
+iDso_bRes         :=  controlDso();    
+iDso_iRes         :=  processDso(nPrgModify);
+(*iDso_iRes         := processPnlDso();*)
+iDso_iRes         := procsetsDso();
+(*iDso_iRes         := prociombpDso(false);*)
+(*iDso_iRes         := prociombDso(false); *)                                                      _bRes:= _UdpDebug(vDebugMain, '*processDso'); 
+(* ------------------------------------------------------ *)
+(* Mot	Насосы, обогреватели, пускатели *)	
+iMot_bRes         :=   configMot(nPrgChange);
+iMot_iRes         := prociombMot(true);
+iMot_iRes         := crutchMot(true);
+iMot_bRes         :=  controlMot();
+(*iMot_iRes         :=  processMot(nPrgModify);
+iMot_iRes         := processPnlMot();*)
+iMot_iRes         := procsetsMot();
+iMot_iRes         := crutchMot(false);
+iMot_iRes         := prociombMot(false);                                                       _bRes:= _UdpDebug(vDebugMain, '*processMot');   
+(* ------------------------------------------------------ *)
+(* Vlv	Электрофицированные задвижки *)	
+iVlv_bRes         :=   configVlv(nPrgChange);  
+(*iVlv_iRes         := prociombVlv(true);*)
+(*iVlv_iRes         := prociombpVlv(true);*)
+iVlv_bRes         :=  controlVlv();  
+iVlv_iRes         :=  processVlv(nPrgModify); 
+(*iVlv_iRes         := processPnlVlv();*)
+iVlv_iRes         := procsetsVlv();
+(*iVlv_iRes         := prociombpVlv(false);*)
+(*iVlv_iRes         := prociombVlv(false); *)                                                      _bRes:= _UdpDebug(vDebugMain, '*processVlv'); 
+(* ------------------------------------------------------ *)
+(*iVent_bRes         :=  configVent(nPrgChange);        
+iVent_iRes         := prociombVent(true);
+iVent_iRes         := prociombpVent(true); 
+iVent_bRes         :=  controlVent();  
+iVent_iRes         :=  processVent(nPrgModify); 
+iVent_iRes         := processPnlVent();
+iVent_iRes         := procsetsVent(); 
+iVent_iRes         := prociombpVent(false);
+iVent_iRes         := prociombVent(false);        *)                                             _bRes:= _UdpDebug(vDebugMain, '*processVent'); 
+(* ------------------------------------------------------ *)
+(* MK541	Модуль МК-541-002 Modbus RTU		 *)	
+iDioMK541N_bRes   :=   configDioMK541N(nPrgChange);
+iDioMK541N_iRes   := prociombDioMK541N(true);
+iDioMK541N_iRes   :=  processDioMK541N(nPrgModify);
+iDioMK541N_iRes   := prociombDioMK541N(false);                                                 _bRes:= _UdpDebug(vDebugMain, '*processDioMK541N');    
+(* ------------------------------------------------------ *)
+(* Выходные данные *)
+iDio_bRes         :=       controlDio_Out();           (* Данные ввода-вывода *)               _bRes:= _UdpDebug(vDebugMain, '*controlDio_Out');
+(*iDio_iRes    	  := prociombpDio(false);*)
+iDioMK541N_bRes   := controlDioMK541N_Out();           (* Данные ввода-вывода Modbus/RTU *)    _bRes:= _UdpDebug(vDebugMain, '*controlDioMK541N_Out');
+iDmb_bRes         :=       controlDmb_Out();           (* Данные Modbus/RTU *)                 _bRes:= _UdpDebug(vDebugMain, '*controlDmb_Out');
+(* ------------------------------------------------------ *)
+(* Dio	Данные ввода-вывода	 *)
+iDio_iRes         := crutchDio(false);
+iDio_iRes         := prociombDio(false);                                                       _bRes:= _UdpDebug(vDebugMain, '*processDio');
+(* ------------------------------------------------------ *)
+(* Конец обратки программы *)                                                                  
+If cInit       then cInit       := false; END_IF;
+If cInit_MBReq then cInit_MBReq := false; END_IF;
+If cInit_MBOff then cInit_MBOff := false; END_IF;
+If cInit_MBOn  then cInit_MBOn  := false; END_IF;
+If cInit_MBRes then cInit_MBRes := false; END_IF;                                              _bRes:= _UdpDebug(vDebugMain, 'CycleTime='+ANY_TO_STRING(iodSys.Cycle.CurrentCycleTime)+'--------------');
+END_PROGRAM]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

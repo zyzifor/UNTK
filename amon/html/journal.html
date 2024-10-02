@@ -1,0 +1,320 @@
+<html>
+
+<HEAD>
+   <META NAME="Author" CONTENT="Sage">
+
+<STYLE type="text/css">
+	BODY { margin: 5mm 5mm 5mm 5mm; }
+</STYLE>
+
+</HEAD>
+
+<BODY style="background-color:#FFFFFF" >
+{@set ndateb = #datee - 24 * 3600 * 1000}
+{@set ndatee = #datee }
+
+{@SQL}
+select * from jurnal_data_get({@p ndateb}, {@p ndatee}, {@p #type});
+{@/SQL}
+
+{@set abak1 = "A1 №1239"}
+{@set abak2 = "A2 №1240"}
+{@set il_count=3}
+{@set rec_max=$GetCountRS() - 1}
+{@set NumBIK=-1}
+{@set NULL  = "-"}
+
+<table border="0" cellspacing="0">
+	<tr style="font-size:11;line-height:1.1"><td><u>&nbsp;УИРиПКГ&nbsp;&nbsp;</u></td></tr>
+	<tr style="font-size:11;line-height:1.1"><td><u>&nbsp;Бованенковское НГКМ&nbsp;&nbsp;</u></td></tr>	
+	<tr style="font-size:11;line-height:1.1"><td><u>&nbsp&nbsp&nbspПАО "Газпром"&nbsp&nbsp&nbsp</u></td></tr>
+	<tr style="font-size:6;line-height:1.3"><td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspвладелец участка</td></tr>
+</table>
+<font style="font-size:10;line-height:1.0">
+<div align="center"><b>Журнал регистрации показаний средств измерений<br>
+c {@p $DateFull(ndateb - 1000)} по {@p $DateFull(ndatee - 1000)}</div></b>
+<br>
+
+{@array hours[25]} <!--массив для номеров записей часовок-->
+{@for n=0, 24}
+{@set hours[n] = -1}
+{@/for}
+
+{@set sutki = -1}
+
+{@set temp_tota_vol = 0}
+{@set temp_tota_vol20 = 0}
+{@set temp_tot1_vol = 0}
+{@set temp_tot1_vol20 = 0}
+{@set temp_tot2_vol = 0}
+{@set temp_tot2_vol20 = 0}
+{@set temp_tot3_vol = 0}
+{@set temp_tot3_vol20 = 0}
+
+
+{@set starthour = ndateb - 1000} <!--тут строго час начала двухчасовки, который считается по формуле в скл-->
+{@for n=0, rec_max}
+    {@if ((line[n] == 0) AND (type[n] == #type)) }
+        {@set dif_hour = ( date[n] - starthour ) / 3600000}
+        <!--количество часов с начала периода. Первый отчет - на расстоянии часа от начала, поэтому в массиве нулевой элемент всегда пустой-->
+        {@set hours[dif_hour] = n}
+    {@/if}
+    {@if ((line[n] == 0) AND (type[n] == #type + 3)) }    
+        {@set sutki = n}
+    {@/if}
+{@/for}
+<!--в итоге у нас в массиве либо запись записи нужного часа в массиве, либо -1-->
+
+<table border="1" cellspacing="0" WIDTH="100%" bordercolor="#000000" style="font-size:10;line-height:1.15;border-top:none;border-left:none">
+	<tr align="center">
+		<td style='border-bottom:none;border-right:none' rowspan="3">№<br>п/п</td>
+		<td style='border-bottom:none;border-right:none' rowspan="3">Дата<BR>(дд.мм.гггг)</td>
+		<td style='border-bottom:none;border-right:none' colspan="2">Время<BR>(чч:мм)</td>
+		<td style='border-bottom:none;border-right:none' colspan="8">УИРиПКГ</td>
+		<td style='border-bottom:none;border-right:none' colspan="2">ИТ1</td>
+		<td style='border-bottom:none;border-right:none' colspan="2">ИТ2</td>
+		<td style='border-bottom:none;border-right:none' colspan="2">ИТ3</td>
+		<td style='border-bottom:none;border-right:none' colspan="3">Анализаторы</td>
+	</tr>
+	<tr align="center">
+		<td style='border-bottom:none;border-right:none' rowspan="2">начало</td>
+		<td style='border-bottom:none;border-right:none' rowspan="2">оконч.</td>
+		<td style='border-bottom:none;border-right:none' colspan="3">Объем при р.у., м&sup3;</td>
+		<td style='border-bottom:none;border-right:none' colspan="3">Объем при ст.у., ст.м&sup3;</td>
+		<td style='border-bottom:none;border-right:none'>Средневзве-<br>шенная<br>температура, &deg;C</td>
+		<td style='border-bottom:none;border-right:none'>Средневзве-<br>шенное<br>давление, МПа</td>		
+		<td style='border-bottom:none;border-right:none'>Объем при р.у., м&sup3;</td>
+		<td style='border-bottom:none;border-right:none'>Объем при ст.у., ст.м&sup3;</td>
+		<td style='border-bottom:none;border-right:none'>Объем при р.у., м&sup3;</td>
+		<td style='border-bottom:none;border-right:none'>Объем при ст.у., ст.м&sup3;</td>
+		<td style='border-bottom:none;border-right:none'>Объем при р.у., м&sup3;</td>
+		<td style='border-bottom:none;border-right:none'>Объем при ст.у., ст.м&sup3;</td>
+		<td style='border-bottom:none;border-right:none' rowspan="2" align=center>Средневзве-<br>шенная ТТР<br>по влаге, &deg;C</td>
+		<td style='border-bottom:none;border-right:none' rowspan="2" align=center>Средневзве-<br>шенная ТТР<br>по влаге, прив. к<br>3.92 МПа,<br>&deg;C</td>		
+		<td style='border-bottom:none;border-right:none' rowspan="2" align=center>Средневзве-<br>шенная ТТР по<br>углеводороду, &deg;C</td>
+	</tr>
+	<tr align="center">
+		<td style='border-bottom:none;border-right:none'>на начало</td>
+		<td style='border-bottom:none;border-right:none'>на конец</td>
+		<td style='border-bottom:none;border-right:none'>за период</td>		
+		<td style='border-bottom:none;border-right:none'>на начала</td>
+		<td style='border-bottom:none;border-right:none'>на конец</td>
+		<td style='border-bottom:none;border-right:none'>за период</td>		
+		<td style='border-bottom:none;border-right:none' colspan="2">за период</td>		
+		<td style='border-bottom:none;border-right:none' colspan="2">за период</td>		
+		<td style='border-bottom:none;border-right:none' colspan="2">за период</td>
+		<td style='border-bottom:none;border-right:none' colspan="2">за период</td>
+	</tr>
+	<tr align="center">
+		<td style='border-bottom:none;border-right:none' align=center>1</td>
+		<td style='border-bottom:none;border-right:none' align=center>2</td>
+		<td style='border-bottom:none;border-right:none' align=center>3</td>
+		<td style='border-bottom:none;border-right:none' align=center>4</td>
+		<td style='border-bottom:none;border-right:none' align=center>5</td>
+		<td style='border-bottom:none;border-right:none' align=center>6</td>
+		<td style='border-bottom:none;border-right:none' align=center>7</td>
+		<td style='border-bottom:none;border-right:none' align=center>8</td>
+		<td style='border-bottom:none;border-right:none' align=center>9</td>
+		<td style='border-bottom:none;border-right:none' align=center>10</td>
+		<td style='border-bottom:none;border-right:none' align=center>11</td>
+		<td style='border-bottom:none;border-right:none' align=center>12</td>
+		<td style='border-bottom:none;border-right:none' align=center>13</td>
+		<td style='border-bottom:none;border-right:none' align=center>14</td>
+		<td style='border-bottom:none;border-right:none' align=center>15</td>
+		<td style='border-bottom:none;border-right:none' align=center>16</td>
+		<td style='border-bottom:none;border-right:none' align=center>17</td>
+		<td style='border-bottom:none;border-right:none' align=center>18</td>
+		<td style='border-bottom:none;border-right:none' align=center>19</td>
+		<td style='border-bottom:none;border-right:none' align=center>20</td>
+		<td style='border-bottom:none;border-right:none' align=center>21</td>		
+	</tr>
+{@set cntr = 1}
+{@for n=1, 24}
+        {@set hn = hours[n]}
+
+        {@if hn >= 0}	
+            {@set strdate = $DateDDMMYYYY(date[hn] - 3600000)}
+            {@set strbeg = $DateHour(date[hn] - 3600000)}
+            {@set strend = $DateHour(date[hn])}
+        
+        <TR align="center">
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p cntr}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p strdate}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strbeg < 10)}0{@/if}{@p strbeg}:00&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strend < 10)}0{@/if}{@p strend}:00&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume_accum[hn] - volume[hn], 0, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume_accum[hn], 0, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20_accum[hn] - volume20[hn], 0, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20_accum[hn], 0, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp[hn], 2, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(pres[hn], 2, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn+1], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn+1], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn+2], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn+2], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn+3], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn+3], 0, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(par1[hn+1], 2, NULL)}&nbsp;</TD>		
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(par2[hn+1], 2, NULL)}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(par4[hn+1], 2, NULL)}&nbsp;</TD>	            
+		</TR>
+            {@set temp_tota_vol = temp_tota_vol + volume[hn]}
+            {@set temp_tota_vol20 = temp_tota_vol20 + volume20[hn]}
+            {@set temp_tot1_vol = temp_tot1_vol + volume[hn+1]}
+            {@set temp_tot1_vol20 = temp_tot1_vol20 + volume20[hn+1]}
+            {@set temp_tot2_vol = temp_tot2_vol + volume[hn+2]}
+            {@set temp_tot2_vol20 = temp_tot2_vol20 + volume20[hn+2]}
+            {@set temp_tot3_vol = temp_tot3_vol + volume[hn+3]}
+            {@set temp_tot3_vol20 = temp_tot3_vol20 + volume20[hn+3]}
+		
+		{@else}
+            {@set strdate = $DateDDMMYYYY(starthour)}
+            {@if (cntr > (24 - #chour))}
+            {@set strdate = $DateDDMMYYYY(ndatee)}            
+            {@/if}
+            {@set strbeg = $DateHour(starthour + (cntr - 1) * 3600000)}
+            {@set strend = $DateHour(starthour + cntr * 3600000)}
+		
+        <TR align="center">
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p cntr}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p strdate}&nbsp;</TD>            
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strbeg < 10)}0{@/if}{@p strbeg}:00&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strend < 10)}0{@/if}{@p strend}:00&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>
+            <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	            
+		</TR>
+		{@/if}
+        <!--сутки-->
+        {@if (cntr == 24)}
+            {@set hn = sutki}
+            {@if hn >= 0}	
+                {@set strdate = $DateDDMMYYYY(date[hn] - 3600000)}
+                {@set strbeg = $DateHour(date[hn] - 24*3600000)}
+                {@set strend = $DateHour(date[hn])}
+        
+            <TR align="center" style="font-weight:bold">
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p cntr+1}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p strdate}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strbeg < 10)}0{@/if}{@p strbeg}:00&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strend < 10)}0{@/if}{@p strend}:00&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume_accum[hn] - volume[hn], 0, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume_accum[hn], 0, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20_accum[hn] - volume20[hn], 0, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20_accum[hn], 0, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp[hn], 2, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(pres[hn], 2, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn+1], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn+1], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn+2], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn+2], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume[hn+3], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(volume20[hn+3], 0, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(par1[hn+1], 2, NULL)}&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(par2[hn+1], 2, NULL)}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(par4[hn+1], 2, NULL)}&nbsp;</TD>	                
+            </TR>
+                {@set temp_total_vol = temp_total_vol + volume[hn]}
+                {@set temp_total_vol20 = temp_total_vol20 + volume20[hn]}
+		
+            {@else}
+                {@set strdate = $DateDDMMYYYY(starthour)}
+                {@if (cntr > (24 - #chour))}
+                {@set strdate = $DateDDMMYYYY(ndatee)}            
+                {@/if}
+                {@set strbeg = $DateHour(starthour)}
+                {@set strend = $DateHour(starthour + cntr * 3600000)}
+		
+            <TR align="center" style="font-weight:bold">
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p cntr+1}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p strdate}&nbsp;</TD>            
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strbeg < 10)}0{@/if}{@p strbeg}:00&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@if ( strend < 10)}0{@/if}{@p strend}:00&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tota_vol, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tota_vol20, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tot1_vol, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tot1_vol20, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tot2_vol, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tot2_vol20, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tot3_vol, 0, NULL)}*&nbsp;</TD>		
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p $FormatEx(temp_tot3_vol20, 0, NULL)}*&nbsp;</TD>		               
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>
+                <TD style='border-bottom:none;border-right:none'>&nbsp;{@p NULL}&nbsp;</TD>	                
+            </TR>
+            {@/if}		
+        {@/if}
+    {@set cntr = cntr + 1}
+{@/for}
+</table>
+
+{@if (sutki < 0)}
+<font style="font-size:10;line-height:1.0">
+<br>* - не расчетное справочное значение, полученное суммированием
+</font>
+{@/if}
+
+<font style="font-size:10;line-height:1.0">
+<br>Отчет сформирован по данным ИВК АБАК {@if (#type < 100)}{@p abak1}{@else}{@p abak2}{@/if}<br>
+</font>
+
+<table border="0" cellspacing="0" style="font-size:12;line-height:1.15" WIDTH="100%">
+	<tr>
+		<td width="15%" colspan = "7" >&nbsp;</td>
+	</tr>	
+
+	<tr>
+		<td align="center" colspan = "3"><b>Операторы сдающего предприятия:</b></td>
+		<td width="15%">&nbsp;</td>
+		<td align="center" colspan = "3"><b>Операторы принимающего предприятия:</b></td>
+	</tr>	
+	<tr>
+		<td width="15%" colspan = "7">&nbsp;</td>
+	</tr>
+	
+	<tr>
+		<td valign="top" width="10%">Смену сдал</td>
+		<td align="center" width="14%">________________<br><center>подпись</center></td>
+		<td align="center" width="14%">________________<br><center>И.О. Фамилия<center></td>
+		<td width="20%">&nbsp;</td>
+		<td width="10%"valign="top">Смену сдал</top></td>
+		<td align="center" width="14%">________________<br><center>подпись</center></td>
+		<td align="center" width="14%">________________<br><center>И.О. Фамилия<center></td>
+	</tr>
+	<tr>
+		<td valign="top" width="10%">Смену принял</top></td>
+		<td align="center" width="14%">________________<br><center>подпись</center></td>
+		<td align="center" width="14%">________________<br><center>И.О. Фамилия<center></td>
+		<td width="10%"><br>&nbsp;</td>
+		<td valign="top">Смену принял</top></td>
+		<td align="center" width="14%">________________<br><center>подпись</center></td>
+		<td align="center" width="14%">________________<br><center>И.О. Фамилия<center></td>
+	</tr>
+</table>
+
+</BODY>
+</html>

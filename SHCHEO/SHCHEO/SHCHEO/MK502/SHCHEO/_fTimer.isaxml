@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="_fTimer" ElementGuid="9ad17ee6-f45d-49fb-b82c-5aa7eae655d8" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="_fTimer" DataType="REAL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="Start" DataType="BOOL" InitialValue="" Comment="Запуск" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="Stop" DataType="BOOL" InitialValue="" Comment="Останов" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="tTimer" DataType="REAL" InitialValue="" Comment="Уставка" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="mTimer" DataType="REAL" InitialValue="" Comment="Значение таймера" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION _fTimer
+_fTimer:= mTimer;  
+if mTimer>0.0           then _fTimer:= mTimer+dDtTm[sDtTm.DT].MSec; 	end_if;
+if mTimer<0.0           then _fTimer:= 0.0;   							end_if;
+if Start & mTimer=0.0   then _fTimer:= 0.001;			                end_if;
+if Stop                 then _fTimer:= 0.0;   		                	end_if;
+if (mTimer>tTimer+0.001) or (tTimer=0.0 & Start) then _fTimer:= -1.0; 	end_if;
+if tTimer=6553.5        then _fTimer:= 0.0;						    	end_if;    (* для  пневмоклапанов. удеожание команды *)
+
+
+
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

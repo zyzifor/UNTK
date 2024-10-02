@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="procsetsDso" ElementGuid="286f8442-e26a-4f04-87fe-29aaa2f136fe" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="procsetsDso" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION procmessDso
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* procsetsDso         BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+procsetsDso:= sDso.iSize;
+if sDso.iSize>sDso.iMax then procsetsDso:= -sDso.iSize; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sDso.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+if not dDso[i].nLogicNot then
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iDso:= dDso[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение уставок *)
+  if iDso.nSetsRead then
+    dSetsData[sDso.Idn].Data[i, 01] := ANY_TO_REAL (iDso.tTimer1)/10.0;                   (* Т01 Импульс Включить (Импульс) <сек.> *)
+    dSetsData[sDso.Idn].Data[i, 02] := ANY_TO_REAL (iDso.tTimer2)/10.0;                   (* Т02 Импульс Отключить (Мигание) <сек.> *)
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Запись уставок *)
+  if iDso.nSetsWrite then
+    iDso.tTimer1                    := ANY_TO_WORD (dSetsData[sDso.Idn].Data[i, 01]*10.0);(* Т01 Импульс Включить (Импульс) <сек.> *)
+    iDso.tTimer2                    := ANY_TO_WORD (dSetsData[sDso.Idn].Data[i, 02]*10.0);(* Т02 Импульс Отключить (Мигание) <сек.> *)
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dDso[i]:= iDso;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+end_if;
+i:= i+1; end_while;
+END_FUNCTION
+]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

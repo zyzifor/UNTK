@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="controlAna" ElementGuid="a1af7e97-f6aa-42a6-a29d-70d3159b8955" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="controlAna" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION controlAna
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* controlAna          BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* iPrgChange          BOOL                                VarInput   Read            Флаг изменения программы ПЛК *)
+(* i                   DINT                                Var        Read/Write      Счётчик *)
+(* _bRes               BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes               DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+controlAna          := true;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sAna.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iAna:= dAna[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+  (* Обмен данными *)
+  case i of
+     1: ; (* Panel             Для панели                                         *)
+     2: ; (* T-AIR             Контроль температуры наружного воздуха             *)
+     3: ; (* T-1               Контроль температуры трубопровода т.1              *)
+     4: ; (* T-2               Контроль температуры трубопровода т.2              *)
+     5: ; (* T-3               Контроль температуры трубопровода т.3              *)
+     6: ; (* T-4               Контроль температуры трубопровода т.4              *)
+     7: ; (* T-5               Контроль температуры трубопровода т.5              *)
+     8: ; (* T-6               Контроль температуры трубопровода т.6              *)
+     9: ; (* T-7               Контроль температуры трубопровода т.7              *)
+    10: ; (* T-8               Контроль температуры трубопровода т.8              *)
+    11: ; (* T-9               Контроль температуры трубопровода т.9              *)
+    12: ; (* T-10              Контроль температуры трубопровода т.10             *)
+    13: ; (* T-11              Контроль температуры трубопровода т.11             *)
+    14: ; (* T-12              Контроль температуры трубопровода т.12             *)
+    15: ; (* T-13              Контроль температуры трубопровода т.13             *)
+    16: ; (* T-14              Контроль температуры трубопровода т.14             *)
+    17: ; (* T-15              Контроль температуры трубопровода т.15             *)
+    18: ; (* Параметр-RS485    Параметр RS485                                     *)
+  end_case;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dAna[i]:= iAna;
+i:= i+1; end_while;
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

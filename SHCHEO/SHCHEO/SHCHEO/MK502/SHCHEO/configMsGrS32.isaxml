@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="configMsGrS32" ElementGuid="e8c9cca7-552a-4860-a8f1-42cb8405267f" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="configMsGrS32" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="iPrgChange" DataType="BOOL" InitialValue="" Comment="Флаг изменения программы ПЛК" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION configMsGrS32
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* configEvent32       BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* nPrgChange          BOOL                                VarInput   Read            Флаг изменения программы ПЛК *)
+(* iMsGrS32            typMsGrS32                          Var        Read/Write      Рабочий объект *)
+(* i                   DINT                                Var        Read/Write      Счётчик *)
+(* _bRes               BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes               DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+configMsGrS32       := true;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Функция выполняется только при изменении программы ПЛК *)
+if not iPrgChange then configMsGrS32:= false; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Задание констант классов сообщений *)
+dMsGrS32[sMsGrS32.MS].AH:= 16#8000;    (* Авария	Аварийное повышение	31 *)
+dMsGrS32[sMsGrS32.MS].AL:= 16#4000;    (* Авария	Аварийное понижение	30 *)
+dMsGrS32[sMsGrS32.MS].WH:= 16#2000;    (* Предупреждение	Предупредительное повышение	29 *)
+dMsGrS32[sMsGrS32.MS].WL:= 16#1000;    (* Предупреждение	Предупредительное понижение	28 *)
+dMsGrS32[sMsGrS32.MS].PR:= 16#0800;    (* Предупреждение	Предектив	27 *)
+dMsGrS32[sMsGrS32.MS].TX:= 16#0400;    (* Норма	Нормальное изменение	26 *)
+dMsGrS32[sMsGrS32.MS].FL:= 16#0200;    (* ПЛК	ПЛК Неисправность	25 *)
+dMsGrS32[sMsGrS32.MS].ER:= 16#0100;    (* Оборудование	Неисправность	24 *)
+dMsGrS32[sMsGrS32.MS].IM:= 16#0080;    (* Параметр	Имитация	23 *)
+dMsGrS32[sMsGrS32.MS].PM:= 16#0040;    (* Класс сообщения процесса	Сообщение процесса	22 *)
+dMsGrS32[sMsGrS32.MS].MS:= 16#0010;    (* Параметр	Маскирование	20 *)
+dMsGrS32[sMsGrS32.MS].OM:= 16#0008;    (* Класс сообщения о действии оператора	Сообщение о действии оператора	19 *)
+dMsGrS32[sMsGrS32.MS].AS:= 16#0004;    (* Системное с квитированием	Система управления процессом *)	
+dMsGrS32[sMsGrS32.MS].OS:= 16#0002;    (* Системное с квитированием	Системные сообщения	 *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сброс макс. количества сообщений за скан *)
+dMsGrS32[sMsGrS32.MS].iMessMax:= 0;
+
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

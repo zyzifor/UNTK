@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="prociombSafe" ElementGuid="d1c7b014-ed6b-4f02-b9d4-ee7e2420d894" Comment="" SingleTextLine="Обмен Modbus Dio" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="prociombSafe" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="nWr" DataType="BOOL" InitialValue="" Comment="true - Запись из Modbus в ПЛК/false - чтение из ПЛК в Modbus" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="Результат функции BOOL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="n" DataType="DINT" InitialValue="" Comment="Номер в массиве iodMBP_4x[m].regs[n]" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iReal" DataType="REAL" InitialValue="" Comment="Массив промежуточных данных REAL" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="0" />
+    </Variable>
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="m" DataType="DINT" InitialValue="" Comment="Номер в массиве iodMBP_4x[m].regs[n]" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iWord" DataType="WORD" InitialValue="" Comment="Массив промежуточных данных WORD" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="1" />
+    </Variable>
+    <Variable Name="_iRes" DataType="INT" InitialValue="" Comment="Результат функции INT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="iData" DataType="WORD" InitialValue="" Comment="Массив промежуточных данных" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="">
+      <Dimension Lower="0" Upper="1" />
+      <Dimension Lower="0" Upper="99" />
+    </Variable>
+    <Variable Name="_dRes" DataType="DINT" InitialValue="" Comment="Результат функции DINT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION prociombSafe
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* prociombSafe        BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* nWr                 BOOL                                VarInput   Read            true - Запись из Modbus в ПЛК/false - чтение из ПЛК в Modbus *)
+(* iData               WORD          [0...0,0...99]        Var        Read/Write      Массив промежуточных данных *)
+(* iWord               WORD          [0...1]               Var        Read/Write      Массив промежуточных данных WORD *)
+(* iReal               REAL          [0...0]               Var        Read/Write      Массив промежуточных данных REAL *)
+(* j                   DINT                                Var        Read/Write      Счётчик *)
+(* m                   DINT                                Var        Read/Write      Номер в массиве iodMBP_4x[m].regs[n] *)
+(* n                   DINT                                Var        Read/Write      Номер в массиве iodMBP_4x[m].regs[n] *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+prociombSafe:= sSafe.iSize;
+if sSafe.iSize>sSafe.iMax then prociombSafe:= -sSafe.iSize; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sSafe.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iSafe:= dSafe[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проверка *)
+  if sSafe.mbSize<=0 or
+     mbSafe[i, 0]<0 or mbSafe[i, 0]>64 or mbSafe[i, 1]<1 or mbSafe[i, 1]>1024 then
+     prociombSafe:= -2;
+  end_if;
+  (* Считывание настроечных данных *)
+  m:= ANY_TO_DINT(mbSafe[i, 0]); n:= ANY_TO_DINT(mbSafe[i, 1]);
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение данных из Modbus в ПЛК *)
+  if nWr Then
+    iSafe.wrCRC:= CRC16ForModbusRegs(iodMBP_4x, m, n, sSafe.mbSize);
+    if iSafe.wrCRC<>iSafe.rdCRC then
+      iSafe.wrCount:= iSafe.wrCount+1; if iSafe.wrCount>1000000 then iSafe.wrCount:= 1; end_if;
+      _dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, sSafe.mbSize);
+  (* ----------------------------------------------------------- *)
+      iSafe.Command     :=             iData[0,    2];                                     (* Команда (упаковка) *)
+      iSafe.cImitOn     := iSafe.Command.0;                                                (* Команда оператора. Включить имитацию *)
+      iSafe.cImitOff    := iSafe.Command.1;                                                (* Команда оператора. Отключить имитацию *)
+      iSafe.cMaskOn     := iSafe.Command.2;                                                (* Команда оператора. Включить маскирование *)
+      iSafe.cMaskOff    := iSafe.Command.3;                                                (* Команда оператора. Отключить маскирование *)
+      iSafe.cDebl       := iSafe.Command.4;                                                (* Команда оператора. Деблокировать срабатывание *)
+      iSafe.cAutoMaskOn := iSafe.Command.5;                                                (* Команда Автоматическая. Включить маскирование *)
+      iSafe.cAutoMaskOff:= iSafe.Command.6;                                                (* Команда Автоматическая. Отключить маскирование *)
+  (* ----------------------------------------------------------- *)
+      iSafe.MsAck_State :=             iData[0,   10];                                     (* Состояние (Подтверждение) *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer1     :=             iData[0,   12];                                     (* Т01 Фильтр дребезга <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer2     :=             iData[0,   13];                                     (* Т02 Задержка ввода в работу <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer12    :=             iData[0,   14];                                     (* Т12 Задержка срабатывания. Выход 2 <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer13    :=             iData[0,   15];                                     (* Т13 Задержка срабатывания. Выход 3 <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer14    :=             iData[0,   16];                                     (* Т14 Задержка срабатывания. Выход 4 <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer15    :=             iData[0,   17];                                     (* Т15 Задержка срабатывания. Выход 5 <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer16    :=             iData[0,   18];                                     (* Т16 Задержка срабатывания. Выход 6 <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer17    :=             iData[0,   19];                                     (* Т17 Задержка срабатывания. Выход 7 <сек.> *)
+  (* ----------------------------------------------------------- *)
+      iSafe.tTimer18    :=             iData[0,   20];                                     (* Т18 Задержка срабатывания. Выход 8 <сек.> *)
+    end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение данных из Modbus в ПЛК *)
+  else
+    iSafe.State.0     := iSafe.sOk;                                                      (* В НОРМЕ *)       
+    iSafe.State.1     := iSafe.sOn;                                                      (* СРАБАТЫВАНИЕ *)  
+    iSafe.State.2     := iSafe.sWarn;                                                    (* ВНИМАНИЕ *)      
+    iSafe.State.3     := iSafe.sImit;                                                    (* ИМИТАЦИЯ *)      
+    iSafe.State.4     := iSafe.sMask;                                                    (* МАСКИРОВАНИЕ *)  
+    iSafe.State.5     := iSafe.sWork;                                                    (* В РАБОТЕ *)      
+    iSafe.State.6     := iSafe.sDebl;                                                    (* РАЗРЕШЕНО ДЕБЛОКИРОВАНИЕ *)
+    iSafe.State.7     := iSafe.sInput;                                                   (* ВХОД АКТИВЕН *)  
+    iSafe.State.8     := iSafe.sOut;                                                     (* ВЫХОД АКТИВЕН *) 
+    iSafe.State.9     := iSafe.xInput;                                                   (* Вход Срабатывание *)
+    iSafe.State.10    := iSafe.xWarn;                                                    (* Вход Внимание *) 
+    iSafe.State.11    := iSafe.xWork;                                                    (* Вход Ввод в работу *)
+    iSafe.State.12    := iSafe.nWork;                                                    (* Наличие параметра Ввод в работу *)
+    iSafe.State.13    := iSafe.yOut;                                                     (* Выход Срабатывание *)
+    iSafe.State.14    := iSafe.yOutCh;                                                   (* Выход Срабатывание (для команды оборудованию) *)
+    iSafe.State.15    := iSafe.sDsoOn1;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.16    := iSafe.sDsoOn2;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.17    := iSafe.sDsoOn3;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.18    := iSafe.sDsoOn4;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.19    := iSafe.sDsoOn5;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.20    := iSafe.sDsoOn6;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.21    := iSafe.sDsoOn7;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.22    := iSafe.sDsoOn8;                                                  (* Дискретный параметр управления. Состояние срабатывания *)
+    iSafe.State.23    := iSafe.sError;                                                   (* НЕИСПРАВНОСТЬ КОНТУРА КОМАНД *)
+    iSafe.State.24    := iSafe.sDsoError1;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.25    := iSafe.sDsoError2;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.26    := iSafe.sDsoError3;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.27    := iSafe.sDsoError4;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.28    := iSafe.sDsoError5;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.29    := iSafe.sDsoError6;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.30    := iSafe.sDsoError7;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+    iSafe.State.31    := iSafe.sDsoError8;                                               (* Дискретный параметр управления. Нет связи с удалённым ПЛК *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    0]    := GetWordFromDWord(iSafe.State, 0);                               (* Состояние Low Word *)
+    iData[0,    1]    := GetWordFromDWord(iSafe.State, 1);                               (* Состояние Hi Word *)
+    iSafe.Command.0   := iSafe.cImitOn;                                                  (* Команда оператора. Включить имитацию *)
+    iSafe.Command.1   := iSafe.cImitOff;                                                 (* Команда оператора. Отключить имитацию *)
+    iSafe.Command.2   := iSafe.cMaskOn;                                                  (* Команда оператора. Включить маскирование *)
+    iSafe.Command.3   := iSafe.cMaskOff;                                                 (* Команда оператора. Отключить маскирование *)
+    iSafe.Command.4   := iSafe.cDebl;                                                    (* Команда оператора. Деблокировать срабатывание *)
+    iSafe.Command.5   := iSafe.cAutoMaskOn;                                              (* Команда Автоматическая. Включить маскирование *)
+    iSafe.Command.6   := iSafe.cAutoMaskOff;                                             (* Команда Автоматическая. Отключить маскирование *)
+  (* ----------------------------------------------------------- *)
+    iData[0,    2]    :=             iSafe.Command;                                      (* Команда (упаковка) *)
+  (* ----------------------------------------------------------- *)
+  j:= 0;   while j<=6 do
+    iData[0,    3]    :=             iSafe.sTimer[12+j];                                 (* Т1x Время задержки срабатывания *)
+  j:= j+1; end_while;
+  (* ----------------------------------------------------------- *)
+    iData[0,   10]    :=             iSafe.MsAck_State;                                  (* Состояние (Подтверждение) *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   11]    :=             iSafe.MsEvt_Command;                                (* Команды (Сообщения) *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   12]    :=             iSafe.tTimer1;                                      (* Т01 Фильтр дребезга <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   13]    :=             iSafe.tTimer2;                                      (* Т02 Задержка ввода в работу <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   14]    :=             iSafe.tTimer12;                                     (* Т12 Задержка срабатывания. Выход 2 <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   15]    :=             iSafe.tTimer13;                                     (* Т13 Задержка срабатывания. Выход 3 <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   16]    :=             iSafe.tTimer14;                                     (* Т14 Задержка срабатывания. Выход 4 <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   17]    :=             iSafe.tTimer15;                                     (* Т15 Задержка срабатывания. Выход 5 <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   18]    :=             iSafe.tTimer16;                                     (* Т16 Задержка срабатывания. Выход 6 <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   19]    :=             iSafe.tTimer17;                                     (* Т17 Задержка срабатывания. Выход 7 <сек.> *)
+  (* ----------------------------------------------------------- *)
+    iData[0,   20]    :=             iSafe.tTimer18;                                     (* Т18 Задержка срабатывания. Выход 8 <сек.> *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+    _dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, sSafe.mbSize);
+    iSafe.rdCRC:= CRC16ForModbusRegs(iodMBP_4x, m, n, sSafe.mbSize);
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dSafe[i]:= iSafe;
+i:= i+1; end_while;
+END_FUNCTION
+]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

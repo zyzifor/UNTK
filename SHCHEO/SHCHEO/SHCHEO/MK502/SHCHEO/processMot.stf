@@ -1,0 +1,602 @@
+FUNCTION processMot
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name            Data Type      Dimension            Direction  Attribute       Comment                             *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* processMot     DINT                                VarOutput  Write           Результат выполнения функции *)
+(* iMot            typMot                              Var        Read/Write      Рабочий объект *)
+(* i               DINT                                Var        Read/Write      Счётчик *)
+(* _bRes           BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes           DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+processMot:= sMot.iSize;
+if sMot.iSize>sMot.iMax then processMot:= -sMot.iSize; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sMot.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+if not dMot[i].nLogicNot then
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iMot:= dMot[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сохраняемые переменные (чтение при первом скане) *)
+  if iPrgModify then
+    iMot.rAuto          := rMot[i].rAuto;                        (* Режим Автомат *) 
+    iMot.rReserve       := rMot[i].rReserve;                     (* Режим Резерв *)  
+    iMot.rHandle        := rMot[i].rHandle;                      (* Режим Ручной *)  
+    iMot.rRepair        := rMot[i].rRepair;                      (* Режим Ремонт *)  
+    iMot.sImit          := rMot[i].sImit;                        (* Имитация *)      
+    iMot.sDist          := rMot[i].sDist;                        (* Управление Дистанционное *)
+    iMot.wTDateOn       := rMot[i].wTDateOn;                     (* Дата последнего включения *)
+    iMot.wTTimeOn       := rMot[i].wTTimeOn;                     (* Время последнего включения *)
+    iMot.wTDateOff      := rMot[i].wTDateOff;                    (* Дата последнего отключения *)
+    iMot.wTTimeOff      := rMot[i].wTTimeOff;                    (* Время последнего отключения *)
+    iMot.wTWork         := rMot[i].wTWork;                       (* Наработка ЧЧЧЧЧЧММСС *)
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Начало логики *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+  (* Резервирование каналов *)
+  (* МП включен *)
+  if iMot.nOnR    then  
+	 iMot.xOn   :=  ((not iMot.xErrOn   & not iMot.xErrOnR)        & (iMot.xOn   or iMot.xOnR)) or 
+	                ((not iMot.xErrOn   &     iMot.xErrOnR)        &  iMot.xOn) or
+	                ((    iMot.xErrOn   & not iMot.xErrOnR)        &  iMot.xOnR);
+  end_if;	
+  (* Управление Дистанционное  *)
+  if iMot.nDistR    then  
+	 iMot.xDist  := ((not iMot.xErrDist   & not iMot.xErrDistR)    & (iMot.xDist   or iMot.xDistR)) or 
+	                ((not iMot.xErrDist   &     iMot.xErrDistR)    &  iMot.xDist) or
+	                ((    iMot.xErrDist   & not iMot.xErrDistR)    &  iMot.xDistR);
+  end_if;	
+  (* Управление Местное *)
+  if iMot.nLocalR    then  
+	 iMot.xLocal := ((not iMot.xErrLocal   & not iMot.xErrLocalR)  & (iMot.xLocal   or iMot.xLocalR)) or 
+	                ((not iMot.xErrLocal   &     iMot.xErrLocalR)  &  iMot.xLocal) or
+	                ((    iMot.xErrLocal   & not iMot.xErrLocalR)  &  iMot.xLocalR);
+  end_if;	
+  (* Напряжение в схеме управления *)
+  if iMot.nPowerR    then  
+	 iMot.xPower := ((not iMot.xErrPower   & not iMot.xErrPowerR)  & (iMot.xPower   or iMot.xPowerR)) or 
+	                ((not iMot.xErrPower   &     iMot.xErrPowerR)  &  iMot.xPower) or
+	                ((    iMot.xErrPower   & not iMot.xErrPowerR)  &  iMot.xPowerR);
+  end_if;	
+  (* Готовность *)
+  if iMot.nReadyR    then  
+	 iMot.xReady := ((not iMot.xErrReady   & not iMot.xErrReadyR)  & (iMot.xReady   or iMot.xReadyR)) or 
+	                ((not iMot.xErrReady   &     iMot.xErrReadyR)  &  iMot.xReady) or
+	                ((    iMot.xErrReady   & not iMot.xErrReadyR)  &  iMot.xReadyR);
+  end_if;	
+(* ---------------------------------------------------------------*)
+  (* Редактирование наработка *)    
+  if iMot.cEdit then iMot.nEdit:= not iMot.nEdit; end_if;
+  (* Имитация *)    
+  if not iMot.nExtImit then 
+    iMot.sImit   := (iMot.sImit    or iMot.cImitOn) & not iMot.cImitOff; 
+	iMot.yExtImit:= false;
+  else 
+    iMot.yExtImit:= (iMot.yExtImit or iMot.cImitOn) & not iMot.cImitOff;
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Не имитировать рабочий режим *)
+  if iMot.cImitWork then iMot.nImitWorkNot:= not iMot.nImitWorkNot; end_if;
+  (* ---------------------------------------------------------------*)  
+  (* Управление внешними приводами. Управление до включения *)
+  iMot.nVlvInBefor := iMot.tEnableSet.11;  (* Запорная арматура на входе (управление до включения) *)
+  iMot.nVlvOutBefor:= iMot.tEnableSet.12;  (* Запорная арматура на выходе (управление до включения) *)
+  (* Управление внешними приводами. Номер объекта *)
+  iMot.nVlvInOk    := iMot.nVlvIn>=1 & iMot.nVlvIn<=sVlv.iSize;
+  iMot.nVlvOutOk   := iMot.nVlvOut>=1 & iMot.nVlvOut<=sVlv.iSize;
+  (* ---------------------------------------------------------------*)
+  (* Готовность внешнего привода. Привод на выходе *)
+  if iMot.nVlvOutOk then
+    (* Готовность *)
+	iMot.xReady:= iMot.xReady & 
+	             ( not iMot.rAuto or 
+				  ((iMot.rAuto & dVlv[iMot.nVlvOut].rAuto & not dVlv[iMot.nVlvOut].sError) & 
+				   ((dVlv[iMot.nVlvOut].nDist & dVlv[iMot.nVlvOut].sDist) or not dVlv[iMot.nVlvOut].nDist)
+				  ) 
+				 ); 
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Готовность внешнего привода. Привод на выходе *)
+  if iMot.nVlvInOk then
+    (* Готовность *)
+	iMot.xReady:= iMot.xReady & 
+	             ( not iMot.rAuto or 
+				   ((iMot.rAuto & dVlv[iMot.nVlvIn].rAuto & not dVlv[iMot.nVlvIn].sError) & 
+				    ((dVlv[iMot.nVlvIn].nDist & dVlv[iMot.nVlvIn].sDist) or not dVlv[iMot.nVlvIn].nDist) 
+				   )	
+				 );
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Состояния в режиме имитации *)
+  if iMot.sImit & not iMot.nExtImit then 
+  (* ------------------------------*)
+    iMot.sReady:= iMot.nReady;          (* Готов к управлению *)   
+    (*iMot.sReady:= iMot.xReady;*)
+	iMot.sPower:= iMot.nPower;            (* Есть напряжение в схеме управления*)
+  (* ------------------------------*)
+    if not iMot.nDistOper then            (* Дистанционное управление от ключа*)
+      iMot.sDist := iMot.nDist;             (* - Положение "Дист"*)        
+      iMot.sLocal:= false;                  (* - Положение "Мест"*)
+    else                                  (* Дистанционное управление от АРМ*)
+      if iMot.cDist & iMot.nDist then iMot.sDist:= not iMot.sDist; end_if;  
+	                                        (* - Положение "Дист"*)
+      iMot.sLocal:= not iMot.sDist;         (* - Положение "Мест"*)
+    end_if;                        
+    iMot.sNo     := not iMot.sDist & not iMot.sLocal & iMot.nDist;              
+	                                        (* - Положение "Откл"*)
+  (* ------------------------------*)
+    iMot.fWork:= (iMot.fWork or (iMot.fOn & iMot.mTimer2>=_tTimer(iMot.tTimer2)-dDtTm[1].MSec)) & 
+                  iMot.fOn;                                                               (* Вышел на рабочий режим*)
+    iMot.fOn  := (iMot.fOn   or (iMot.lOn & iMot.mTimer1>=_tTimer(iMot.tTimer1)-dDtTm[1].MSec)) & 
+                  not (iMot.lOff (*& iMot.mTimer1>=_tTimer(iMot.tTimer1)-dDtTm[1].MSec*));             (* Включен*)
+  (* ------------------------------*)
+    iMot.xOn    := iMot.fOn;
+    if not iMot.nImitWorkNot then
+		iMot.xWork  := iMot.fWork;
+	else
+    	iMot.fWork  := iMot.xWork;  
+    end_if;
+	iMot.xExtErr:= false;
+  else
+(* ---------------------------------------------------------------*)
+  (* Состояния без имитации *)
+  
+    iMot.sPower:= iMot.xPower;              (* Есть напряжение в схеме управления*)
+    iMot.sReady:= iMot.xReady;              
+	                                        (* Готов к управлению*)
+  (* ------------------------------*)
+    if not iMot.nDistOper then              (* Дистанционное управление от ключа*)
+      iMot.sDist := iMot.xDist;             (* - Положение "Дист" *)       
+      iMot.sLocal:= iMot.xLocal;            (* - Положение "Мест"*)
+    else                                    (* Дистанционное управление от АРМ*)
+     if iMot.cDist & iMot.nDist then iMot.sDist:= not iMot.sDist; end_if;
+     iMot.sLocal:= not iMot.sDist;         (* - Положение "Мест"*)
+     iMot.lDist := iMot.sDist;             (* - Дист. управление*)
+    end_if;                        
+    iMot.sNo     := not iMot.sDist & not iMot.sLocal & iMot.nDist;       (* - Положение "Откл"*)
+  (* Состояния для имитации*)
+    iMot.fOn    := iMot.xOn;
+    iMot.fWork  := iMot.xWork;  
+  end_if;
+(* ---------------------------------------------------- *)
+(* Питание *)
+  iMot.sNotPower:= iMot.nPower & not iMot.sPower;
+(* ---------------------------------------------------- *)
+(* Готовность *)
+  iMot.sNotReady:= iMot.nReady & not iMot.sReady;
+(* ---------------------------------------------------- *)
+  (* Блокировка автоматических команд*)
+  iMot.cOnAuto := iMot.cOnAuto  & (((iMot.nMode & iMot.rAuto) or (iMot.nReserve & iMot.rReserve)) or not iMot.nMode);
+  iMot.cOffAuto:= iMot.cOffAuto & (((iMot.nMode & iMot.rAuto) or (iMot.nReserve & iMot.rReserve)) or not iMot.nMode);
+(* ---------------------------------------------------- *)
+  iMot.sNotReady:= not iMot.sReady & iMot.nReady;       (* Не Готов к управлению *)
+  iMot.sNotPower:= not iMot.sPower & iMot.nPower;		(* Нет напряжения в схеме управления *)
+(* ---------------------------------------------------------------*)
+  (* Состояния*)
+  iMot.sOn   := iMot.xOn;                 (* Включен*)
+  iMot.sOff  := not iMot.xOn;             (* Отключен*)
+  (* ------------------------------*)
+  iMot.sWork := iMot.fWork;               (* Вышел на рабочий режим*)
+  (* ---------------------------------------------------------------*)
+  (* Дополнительные состояния*)
+  iMot.sConnect   := (not iMot.nLong & iMot.lOn)  or (iMot.mTimer2>0.0 & _tTimer(iMot.tTimer2)>0.0 & iMot.nWork) or
+                     (iMot.nLong & iMot.lOn & not iMot.sOn);
+  iMot.sDisconn   := (not iMot.nLong & iMot.lOff) or
+                     (iMot.nLong & iMot.lOff & not iMot.sOff); 
+  (* ---------------------------------------------------------------*)
+  (* Неисправность *)
+  if not iMot.nExtLogic then
+    iMot.sError:= (iMot.eOn or iMot.eOff or iMot.eOnWork or iMot.eWork  or iMot.eExtErr or iMot.ePLCErr) & 
+                   not iMot.cDebl;
+  else 
+    iMot.sError:= (iMot.eOn or iMot.eOff or iMot.eOnWork or iMot.eWork  or iMot.eExtErr or iMot.ePLCErr); 
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Внешние команды *)			  
+  iMot.yExtDebl:= iMot.yExtDebl or iMot.cDebl;
+ (* ---------------------------------------------------------------*)
+  (* Блокировка установки режимов*) 
+  iMot.cAuto   := iMot.cAuto    & not iMot.rAuto    & not iMot.sError;
+  iMot.cReserve:= iMot.cReserve & not iMot.rReserve & not iMot.sError & not iMot.fReserveMsk & iMot.nReserve;
+  iMot.cHandle := iMot.cHandle  & not iMot.rHandle;
+  iMot.cRepair := iMot.cRepair  & not iMot.rRepair  & iMot.sOff;
+  (* ---------------------------------------------------------------*)
+  (* Кодировка поданных команд *)
+  iMot.mcNotMode:= (iMot.cOnAuto or iMot.cOffAuto) & not (iMot.rAuto or iMot.rReserve) & iMot.nMode;
+  iMot.mcNotWork:= (iMot.cOnOper or iMot.cOnAuto or iMot.cOffAuto or iMot.cOffOper) &
+                    not ((iMot.sDist & iMot.nDist) or (iMot.sPower & iMot.nPower) or (iMot.sReady & iMot.nReady) or iMot.sError);
+(* ---------------------------------------------------- *)
+(* Команды от внешних Dso *)
+  iMot.eDsoCmd  := false;             (* Невыполнение команды (Безопасный режим) *)
+  iMot.fDsoOnOn := false;             (* Воздействие ПАЗ активно. Включить (Безопасный режим) *)
+  iMot.fDsoOffOn:= false;             (* Воздействие ПАЗ активно. Отключить (Безопасный режим) *)
+(* Включить (Безопасный режим) *)
+  If iMot.nDsoOn>0 & iMot.nDsoOn<=sDso.iSize then
+    iMot.cOnSafe := _fControl(iMot.cOnSafe, dDso[iMot.nDsoOn].sOn, dDso[iMot.nDsoOn].fCh);
+	iMot.eDsoCmd := iMot.eDsoCmd or (dDso[iMot.nDsoOn].sOn & iMot.sError);                              (* Невыполнение команды (Безопасный режим) *)
+	iMot.fDsoOnOn:= dDso[iMot.nDsoOn].sOn;									                            (* Воздействие ПАЗ активно. Включить (Безопасный режим) *)
+   (* Возобновить действие после деблокировки неисправности при сработанной ПАЗ *)
+	iMot.cOnSafe:= _fControl(iMot.cOnSafe, dDso[iMot.nDsoOn].sOn & iMot.nESDErrDebl & not (iMot.sError or iMot.eOn   or iMot.eOff    or iMot.eOnWork or 
+	                                                                                                      iMot.eWork or iMot.eExtErr or iMot.ePLCErr),
+										    iMot.sError <> dMot[i].sError);	
+  end_if;
+(* Отключить (Безопасный режим) *)
+  If iMot.nDsoOff>0 & iMot.nDsoOff<=sDso.iSize then
+    iMot.cOffSafe := _fControl(iMot.cOffSafe, dDso[iMot.nDsoOff].sOn, dDso[iMot.nDsoOff].fCh);
+	iMot.eDsoCmd  := iMot.eDsoCmd or (dDso[iMot.nDsoOff].sOn & iMot.sError);                            (* Невыполнение команды (Безопасный режим) *)
+	iMot.fDsoOffOn:= dDso[iMot.nDsoOff].sOn;									                        (* Воздействие ПАЗ активно. Отключить (Безопасный режим) *)
+   (* Возобновить действие после деблокировки неисправности при сработанной ПАЗ *)
+	iMot.cOffSafe:= _fControl(iMot.cOffSafe, dDso[iMot.nDsoOff].sOn & iMot.nESDErrDebl & not (iMot.sError or iMot.eOn   or iMot.eOff    or iMot.eOn
+	or 
+	                                                                                                         iMot.eWork or iMot.eExtErr or iMot.ePLCErr),
+										    iMot.sError <> dMot[i].sError);	
+  end_if;
+(* ---------------------------------------------------- *)
+  (* Установка режимов автоматически*)
+  iMot.cHandleAuto:= iMot.cDebl or iMot.cOnSafe or iMot.cOffSafe or 
+                    ((iMot.nDist & not iMot.sDist & dMot[i].sDist) & 
+					(iMot.rAuto or iMot.rReserve));
+  iMot.cRepairAuto:= (iMot.sOff   & (iMot.sError & not dMot[i].sError) or 
+                     (iMot.sError & (iMot.sOff   & not dMot[i].sOff)));
+  (* --------------------------------------------------------------- *)
+  (* Установка режимов *)
+  if not iMot.nExtMode then
+    iMot.rAuto   := iMot.nMode & (iMot.cAuto or iMot.cAutoAuto or iMot.rAuto) & 
+                    not (iMot.cReserve or iMot.cReserveAuto or 
+		                 iMot.cHandle  or iMot.cHandleAuto  or 
+					     iMot.cRepair  or iMot.cRepairAuto);
+    iMot.rReserve:= iMot.nMode & (iMot.cReserve or iMot.cReserveAuto or iMot.rReserve) & 
+                    not (iMot.cAuto    or iMot.cAutoAuto    or 
+				         iMot.cHandle  or iMot.cHandleAuto  or 
+					     iMot.cRepair  or iMot.cRepairAuto);
+    iMot.rHandle := iMot.nMode & (iMot.cHandle or iMot.cHandleAuto or iMot.rHandle) & 
+                    not (iMot.cAuto    or iMot.cAutoAuto    or  
+				         iMot.cReserve or iMot.cReserveAuto or
+					     iMot.cRepair  or iMot.cRepairAuto);
+    iMot.rRepair := iMot.nMode & (iMot.cRepair or iMot.cRepairAuto or iMot.rRepair) & 
+                    not (iMot.cAuto    or iMot.cAutoAuto    or
+				         iMot.cReserve or iMot.cReserveAuto or 
+				         iMot.cHandle  or iMot.cHandleAuto); 
+  else						 
+  (* ---------------------------------------------------------------*)
+  (* Установка режимов для внешнего устройства *) 
+    iMot.yExtAuto   := iMot.yExtAuto    or iMot.cAuto; 
+    iMot.yExtReserve:= iMot.yExtReserve or iMot.cReserve; 
+    iMot.yExtHandle := iMot.yExtHandle  or iMot.cHandle; 
+    iMot.yExtRepair := iMot.yExtRepair  or iMot.cRepair; 
+  end_if;
+  (* --------------------------------------------------------------- *)
+  (* Блокировки управления *)
+  iMot.fOnMsk := (iMot.sOn  or iMot.sConnect or iMot.sError or (iMot.rRepair & iMot.nMode)) or          
+                 (not iMot.sPower  & iMot.nPower) or          
+                 (not iMot.sReady  & iMot.nReady) or          
+                 (not iMot.sDist   & iMot.nDist) or iMot.xOnMsk;
+  iMot.fOffMsk:= (iMot.sOff or iMot.sDisconn) or iMot.xOffMsk;  
+  (* --------------------------------------------------------------- *)
+  (* Автоматические команды *)
+  iMot.fOffAuto:= ((iMot.eOn     & iMot.nOffOn)     or   
+                   (iMot.eOff    & iMot.nOff)       or       
+                   (iMot.eOnWork & iMot.nOffOnWork) or  
+                   (iMot.eWork   & iMot.nOffWork)   or   
+                    iMot.ePLCErr                    or
+					iMot.eExtErr) & (iMot.sOn or iMot.sConnect);
+  iMot.fOffAuto:= iMot.fOffAuto & not iMot.nExtLogic;					
+  (* ---------------------------------------------------------------*)
+  (* Управление внешними приводами. Привод на выходе *)
+  if iMot.nVlvOutOk then
+    (* Переключение режимов. Автомат *)
+    dVlv[iMot.nVlvOut].cAutoAuto := _fControl(dVlv[iMot.nVlvOut].cAutoAuto, 
+	                                          iMot.rAuto & not dVlv[iMot.nVlvOut].sError & dVlv[iMot.nVlvOut].rHandle,
+								              iMot.cAuto);
+    (* Автоматическое управление - Открытие *)
+    dVlv[iMot.nVlvOut].cOpenAuto := _fControl(dVlv[iMot.nVlvOut].cOpenAuto,
+	                                          iMot.rAuto & dVlv[iMot.nVlvOut].rAuto & 
+											  (iMot.tTimer12=0 & iMot.sOn & not dMot[i].sOn) or 
+											  (not iMot.nVlvOutBefor & iMot.tTimer12>0 & iMot.mTimer12=-1.0) or 
+											  (iMot.nVlvOutBefor & iMot.tTimer12>0 & (iMot.cOnOper or iMot.cOnAuto)),
+											  true);
+    (* Автоматическое управление - Закрытие *)
+	dVlv[iMot.nVlvOut].cCloseAuto:= _fControl(dVlv[iMot.nVlvOut].cCloseAuto,
+	                                          (iMot.rAuto     & dVlv[iMot.nVlvOut].rAuto & not iMot.sOn & dMot[i].sOn) or 
+											  (not iMot.rAuto & dVlv[iMot.nVlvOut].rAuto & not iMot.sOn & dMot[i].sOn & iMot.sError & (iMot.eOnWork or iMot.eWork)),
+											  true);
+	
+	
+	(* dVlv[iMot.nVlvOut].cCloseAuto:= _fControl(dVlv[iMot.nVlvOut].cCloseAuto,
+	                                          iMot.rAuto & dVlv[iMot.nVlvOut].rAuto & not iMot.sOn & dMot[i].sOn,
+											  true);
+	*)
+    (* Блокировка команд *)
+	if iMot.nVlvOutBefor & iMot.rAuto & dVlv[iMot.nVlvOut].rAuto & (iMot.cOnOper or iMot.cOnAuto) then
+	  iMot.cOnOper:= false;
+	  iMot.cOnAuto:= false;
+	  iMot.mTimer12:= 0.1;
+	end_if;
+    (* Запуск агрегата *)
+	if iMot.nVlvOutBefor & iMot.rAuto & dVlv[iMot.nVlvOut].rAuto then
+	  iMot.cOnAuto:= iMot.mTimer12=-1.0;
+	end_if;
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Управление внешними приводами. Привод на выходе *)
+  if iMot.nVlvInOk then
+    (* Переключение режимов. Автомат *)
+    dVlv[iMot.nVlvIn].cAutoAuto := _fControl(dVlv[iMot.nVlvIn].cAutoAuto, 
+	                                          iMot.rAuto & not dVlv[iMot.nVlvIn].sError & dVlv[iMot.nVlvIn].rHandle,
+								              iMot.cAuto or iMot.cAutoAuto);
+    (* Автоматическое управление - Открытие *)
+    dVlv[iMot.nVlvIn].cOpenAuto := _fControl(dVlv[iMot.nVlvIn].cOpenAuto,
+	                                          iMot.rAuto & dVlv[iMot.nVlvIn].rAuto & 
+											  (iMot.tTimer11=0 & iMot.sOn & not dMot[i].sOn) or 
+											  (not iMot.nVlvInBefor & iMot.tTimer11>0 & iMot.mTimer11=-1.0) or 
+											  (iMot.nVlvInBefor & iMot.tTimer11>0 & (iMot.cOnOper or iMot.cOnAuto)),
+											  true);
+    (* Автоматическое управление - Закрытие *)
+	dVlv[iMot.nVlvIn].cCloseAuto:= _fControl(dVlv[iMot.nVlvIn].cCloseAuto,
+	                                         iMot.rAuto & dVlv[iMot.nVlvIn].rAuto & not iMot.sOn & dMot[i].sOn,
+											 true);           
+    (* Блокировка команд *)
+	if iMot.nVlvInBefor & iMot.rAuto & dVlv[iMot.nVlvIn].rAuto & (iMot.cOnOper or iMot.cOnAuto) then
+	  iMot.cOnOper:= false;
+	  iMot.cOnAuto:= false;
+	  iMot.mTimer11:= 0.1;
+	end_if;
+    (* Запуск агрегата *)
+	if iMot.nVlvInBefor & iMot.rAuto & dVlv[iMot.nVlvIn].rAuto then
+	  iMot.cOnAuto:= iMot.mTimer11=-1.0;
+	end_if;
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Обработка выходных команд *)
+  iMot.lOn := ((iMot.cOnOper  or (iMot.cOnAuto  & (iMot.rAuto or iMot.rReserve or not iMot.nMode))) & not iMot.fOnMsk) or 
+              (not iMot.nLong & iMot.lOn  & iMot.mTimer1>0.0 & not iMot.sOn) or
+              (iMot.nLong     & iMot.lOn  & not iMot.lOff) or
+              iMot.cOnSafe;
+  iMot.lOff:= ((iMot.cOffOper or (iMot.cOffAuto & (iMot.rAuto or iMot.rReserve or not iMot.nMode))) & not iMot.fOffMsk) or 
+              (not iMot.nLong & iMot.lOff & iMot.mTimer1>0.0 & not iMot.sOff) or
+              (iMot.nLong     & iMot.lOff & not iMot.lOn) or
+              iMot.cOffSafe or iMot.fOffAuto;
+  (* ---------------------------------------------------------------*)
+  (* Наличие внешней команды *)
+  if iMot.nExtCommand then
+    _yExtCommand:= (iMot.yExtDebl    & not dMot[i].yExtDebl)    or (* Деблокировка неисправности (для вн.команд) *)
+                   (iMot.yExtAuto	 & not dMot[i].yExtAuto)    or (* Режим Автомат (для вн.команд) *)
+                   (iMot.yExtReserve & not dMot[i].yExtReserve) or (* Режим Резерв (для вн.команд) *)
+                   (iMot.yExtHandle  & not dMot[i].yExtHandle)  or (* Режим Ручной (для вн.команд) *)
+                   (iMot.yExtRepair  & not dMot[i].yExtRepair);    (* Режим Ремонт (для вн.команд) *)
+  (* Сброс внеших команд *)
+    if iMot.nTimer6>0.0 & iMot.mTimer6<0.0 then 
+      iMot.yExtDebl   := false;                                   (* Деблокировка неисправности (для вн.команд) *)
+      iMot.yExtAuto   := false;                                   (* Режим Автомат (для вн.команд) *)
+      iMot.yExtReserve:= false;                                   (* Режим Резерв (для вн.команд) *)
+      iMot.yExtHandle := false;                                   (* Режим Ручной (для вн.команд) *)
+      iMot.yExtRepair := false;                                   (* Режим Ремонт (для вн.команд) *)
+    elsif iMot.nTimer6=0.0 then 
+      iMot.yExtDebl   := iMot.yExtDebl    & not dMot[i].yExtDebl;          (* Деблокировка неисправности (для вн.команд) *)
+      iMot.yExtAuto   := iMot.yExtAuto	  & not dMot[i].yExtAuto;          (* Режим Автомат (для вн.команд) *)
+      iMot.yExtReserve:= iMot.yExtReserve & not dMot[i].yExtReserve;       (* Режим Резерв (для вн.команд) *)
+      iMot.yExtHandle := iMot.yExtHandle  & not dMot[i].yExtHandle;        (* Режим Ручной (для вн.команд) *)
+      iMot.yExtRepair := iMot.yExtRepair  & not dMot[i].yExtRepair;        (* Режим Ремонт (для вн.команд) *)
+	end_if;
+  end_if; 
+  (* ---------------------------------------------------------------*)
+  (* Таймеры *)
+  (* Т01 Срабатывание эл. цепей *)
+  iMot.mTimer1:= _fTimer(
+    Start := (not iMot.nLong & (iMot.lOn or iMot.lOff)) or
+             (iMot.nLong     & ((iMot.cOnOper  or iMot.cOnAuto  or iMot.cOnSafe)  & not iMot.sOn) or 
+                               ((iMot.cOffOper or iMot.cOffAuto or iMot.cOffSafe) & not iMot.sOff)), 
+    Stop  := ((iMot.lOn & iMot.sOn) or (iMot.lOff & iMot.sOff)) & 
+              not (iMot.cOnOper  or iMot.cOnAuto  or iMot.cOnSafe or iMot.cOffOper or iMot.cOffAuto or iMot.cOffSafe),
+    tTimer:= _tTimer(iMot.tTimer1),
+    mTimer:= iMot.mTimer1);
+  (* Т02 Выход на Рабочий режим *) 
+  iMot.mTimer2:= _fTimer(
+    Start := not iMot.sWork & iMot.nWork & iMot.lOn &  
+                ((iMot.nMode & (iMot.rAuto or iMot.rReserve)) or
+             not iMot.nMode), 
+    Stop  := iMot.sWork or iMot.cOffOper or iMot.cOffAuto or 
+			 iMot.nExtLogic,
+    tTimer:= _tTimer(iMot.tTimer2),
+    mTimer:= iMot.mTimer2);
+  (* Т03 Контроль Рабочего режима в работе *)
+    iMot.mTimer3:= _fTimer(
+      Start :=  not iMot.sWork & iMot.nWork & iMot.sOn & not iMot.eOnWork & iMot.mTimer2=0.0 &  
+                    ((iMot.nMode & (iMot.rAuto or iMot.rReserve)) or
+                not iMot.nMode),
+      Stop  := iMot.sWork or iMot.cOffOper or iMot.cOffAuto or 
+			   iMot.nExtLogic,
+      tTimer:= _tTimer(iMot.tTimer3),
+      mTimer:= iMot.mTimer3);
+  (* Т04 Контроль цепи Включить *) 
+  (*  iMot.mTimer4:= _fTimer(
+      Start := iMot.xOnFlt & iMot.nOnFlt & iMot.sOff & not iMot.eOnFlt, 
+      Stop  := not iMot.xOnFlt or 
+			   iMot.nExtLogic,
+      tTimer:= _tTimer(iMot.tTimer1),
+      mTimer:= iMot.mTimer4); *)
+  (* Т06 На удержание внешних команд (yExt) *) 
+    iMot.mTimer6:= _fTimer(
+      Start := _yExtCommand, 
+      Stop  := false,
+      tTimer:= iMot.nTimer6,
+      mTimer:= iMot.mTimer6);
+   (* Т11 Задержка авт. упрпвления оборуд. на входе	*)  
+	iMot.mTimer11:= _fTimer(
+      Start := iMot.tTimer11>0 & iMot.nVlvInOk & iMot.rAuto &  
+	           (not iMot.nVlvInBefor & iMot.sOn & not dMot[i].sOn), 
+      Stop  := false,
+      tTimer:= _tTimer(iMot.tTimer11),
+      mTimer:= iMot.mTimer11);	
+   (* Т12 Задержка авт. упрпвления оборуд. на выходе *)
+    iMot.mTimer12:= _fTimer(
+      Start := iMot.tTimer12>0 & iMot.nVlvOutOk & iMot.rAuto &  
+	           (not iMot.nVlvOutBefor & iMot.sOn & not dMot[i].sOn), 
+      Stop  := false,
+      tTimer:= _tTimer(iMot.tTimer12),
+      mTimer:= iMot.mTimer12);	
+	  
+  (* ---------------------------------------------------------------*)
+  (* Обработка неисправностей *)
+  if not iMot.nExtLogic then
+    iMot.eOn    := (iMot.mTimer1=-1.0 & _tTimer(iMot.tTimer1)>0.0 & iMot.lOn) or 
+                   (iMot.eOn        & iMot.sError);
+    iMot.eOff   := (iMot.nLong & iMot.lOn & not iMot.sOn & iMot.nOff & iMot.mTimer1=0.0) or 
+                   (iMot.eOff       & iMot.sError);
+    iMot.eOnWork:= (iMot.mTimer2=-1.0 & _tTimer(iMot.tTimer2)>0.0 & iMot.sOn) or
+                   (iMot.eOnWork    & iMot.sError);
+    iMot.eWork  := (iMot.mTimer3=-1.0 & _tTimer(iMot.tTimer3)>0.0) or 
+                   (iMot.eWork      & iMot.sError);
+ (*   iMot.eOnFlt := (iMot.mTimer4=-1 & _tTimer(iMot.tTimer1)>0.0) or 
+                   (iMot.eOnFlt     & iMot.sError); *)
+    iMot.eExtErr:= (iMot.xExtErr    & not iMot.cDebl) or 
+                   (iMot.eExtErr    & iMot.sError);
+    iMot.ePLCErr:= (iMot.xPLCErr    & not iMot.cDebl) or 
+                   (iMot.ePLCErr    & iMot.sError);
+  end_if;				   
+  (* ----------------------------------------------------*)
+  (* Изменилось состояние  *) 
+  iMot.fCh:= (iMot.rAuto<>dMot[i].rAuto)       or (iMot.rHandle<>dMot[i].rHandle) or (iMot.rRepair<>dMot[i].rRepair) or (iMot.rReserve<>dMot[i].rReserve) or
+             (iMot.sOn<>dMot[i].sOn)           or (iMot.sOff<>dMot[i].sOff) or
+             (iMot.sConnect<>dMot[i].sConnect) or (iMot.sDisconn<>dMot[i].sDisconn) or
+             (iMot.sError<>dMot[i].sError); 
+  (* ---------------------------------------------------------------*)
+  (* Команды без имитации*)
+  if not iMot.sImit or iMot.nExtImit then 
+    iMot.yOn  := iMot.lOn;
+    iMot.yOn2 := iMot.lOn & iMot.nSpeed;
+    iMot.yOff := iMot.lOff;
+    iMot.yDist:= iMot.sDist;
+  end_if;
+  (* --------------------------------------------------------------- *)
+  (* Снятие команд, входов и обнуление таймеров при выводе из имитации *)
+  if iMot.cImitOff  then
+    iMot.xOn    := false; 
+    iMot.xWork  := false; 
+    iMot.lOn    := false; 
+    iMot.lOff   := false; 
+    iMot.lDist  := false;
+    iMot.mTimer1:= 0.0; 
+    iMot.mTimer2:= 0.0; 
+    iMot.mTimer3:= 0.0; 
+  end_if;
+  (* ---------------------------------------------------------------*)
+  (* Дата и время последнего включения и отключения*)
+  if iMot.sOn & not dMot[i].sOn & not iMot.nExtTWork then
+    iMot.wTDateOn := ANY_TO_DINT(dDtTm[1].Day) *10000+ANY_TO_DINT(dDtTm[1].month)*100+(ANY_TO_DINT(dDtTm[1].year-2000));  (* Дата последнего включения*)
+    iMot.wTTimeOn := ANY_TO_DINT(dDtTm[1].hour)*10000+ANY_TO_DINT(dDtTm[1].min  )*100+ ANY_TO_DINT(dDtTm[1].sec);         (* Время последнего включения*)
+  end_if;  
+  if iMot.sOff & not dMot[i].sOff then
+    iMot.wTDateOff:= ANY_TO_DINT(dDtTm[1].day) *10000+ANY_TO_DINT(dDtTm[1].month)*100+(ANY_TO_DINT(dDtTm[1].year-2000));   (* Дата последнего включения*)
+    iMot.wTTimeOff:= ANY_TO_DINT(dDtTm[1].hour)*10000+ANY_TO_DINT(dDtTm[1].min  )*100+ ANY_TO_DINT(dDtTm[1].sec);          (* Время последнего включения*)
+  end_if;  
+  (* ---------------------------------------------------------------*)
+  (* Наработка*)
+  if iMot.sOn & dDtTm[1].BlkSec>0 & not iMot.nEdit & not iMot.nExtTWork then
+    _dRes:= iMot.wTWork+ANY_TO_DINT(dDtTm[1].BlkSec);
+    if (_dRes-(_dRes/10000*10000))>5959 then _dRes:= _dRes-6000+10000; end_if; 
+	if (_dRes-(_dRes/100  *100  ))>59   then _dRes:= _dRes-60  +100;   end_if;
+	iMot.wTWork:= _dRes;
+  end_if; 
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Конец логики *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сохраняемые переменные (сохранение данных) *)
+  rMot[i].rAuto         :=   iMot.rAuto;                         (* Режим Автомат *) 
+  rMot[i].rReserve      :=   iMot.rReserve;                      (* Режим Резерв *)  
+  rMot[i].rHandle       :=   iMot.rHandle;                       (* Режим Ручной *)  
+  rMot[i].rRepair       :=   iMot.rRepair;                       (* Режим Ремонт *)  
+  rMot[i].sImit         :=   iMot.sImit;                         (* Имитация *)      
+  rMot[i].sDist         :=   iMot.sDist;                         (* Управление Дистанционное *)
+  rMot[i].wTDateOn      :=   iMot.wTDateOn;                      (* Дата последнего включения *)
+  rMot[i].wTTimeOn      :=   iMot.wTTimeOn;                      (* Время последнего включения *)
+  rMot[i].wTDateOff     :=   iMot.wTDateOff;                     (* Дата последнего отключения *)
+  rMot[i].wTTimeOff     :=   iMot.wTTimeOff;                     (* Время последнего отключения *)
+  rMot[i].wTWork        :=   iMot.wTWork;                        (* Наработка ЧЧЧЧЧЧММСС *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Упаковка сообщений для команд *)
+  iMot.Command.0        := iMot.cImitOn;                         (* Команда оператора. Режим имитации Включить *)
+  iMot.Command.1        := iMot.cImitOff;                        (* Команда оператора. Режим имитации Отключить *)
+  iMot.Command.2        := iMot.cOnOper;                         (* Команда оператора. Включить *)
+  iMot.Command.3        := iMot.cOffOper;                        (* Команда оператора. Отключить *)
+  iMot.Command.4        := iMot.cOnAuto;                         (* Команда Автоматическая. Включить *)
+  iMot.Command.5        := iMot.cOffAuto;                        (* Команда Автоматическая. Отключить *)
+  iMot.Command.6        := iMot.cOnSafe;                         (* Команда Включить (Безопасный Режим) *)
+  iMot.Command.7        := iMot.cOffSafe;                        (* Команда Отключить (Безопасный Режим) *)
+  iMot.Command.8        := iMot.cDebl;                           (* Деблокировать Неисправность *)
+  iMot.Command.9        := iMot.cDist;                           (* Команда оператора. Включить режим Дист. управления *)
+  iMot.Command.10       := iMot.cLocal;                          (* Команда оператора. Включить режим Местн. управления *)
+  iMot.Command.11       := iMot.cAuto;                           (* Команда оператора. Режим Автомат *)
+  iMot.Command.12       := iMot.cReserve;                        (* Команда оператора. Режим Резерв *)
+  iMot.Command.13       := iMot.cHandle;                         (* Команда оператора. Режим Ручной *)
+  iMot.Command.14       := iMot.cRepair;                         (* Команда оператора. Режим Ремонт *)
+  iMot.Command.15       := iMot.cEdit;                           (* Переключить: Режим редактирования наработки *)
+  iMot.Command.16       := iMot.cAutoAuto;                       (* Команда Автоматическая. Режим Автомат *)
+  iMot.Command.17       := iMot.cReserveAuto;                    (* Команда Автоматическая. Режим Резерв *)
+  iMot.Command.18       := iMot.cHandleAuto;                     (* Команда Автоматическая. Режим Ручной *)
+  iMot.Command.19       := iMot.cRepairAuto;                     (* Команда Автоматическая. Режим Ремонт *)
+  iMot.Command.20       := iMot.cImitWork;                       (* Не имитировать рабочий режим *)
+  if iMot.Command<>0 then iMot.MsEvt_Command:= iMot.Command; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Cообщения для команд *)
+  iMot.MsAck_State:= ANY_TO_WORD(cInit);
+  if iMot.MsAck_State >iMot.oMsAck_State then iMot.MsEvt_Command:= 0;                  end_if;
+  if iMot.Command    <>0                 then iMot.MsEvt_Command:= iMot.Command;       end_if;
+  iMot.oMsAck_State:= iMot.MsAck_State;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сброс команд *)
+  iMot.Command:= 0;
+  iMot.cImitOn          := false;                                (* Команда оператора. Режим имитации Включить *)
+  iMot.cImitOff         := false;                                (* Команда оператора. Режим имитации Отключить *)
+  iMot.cOnOper          := false;                                (* Команда оператора. Включить *)
+  iMot.cOffOper         := false;                                (* Команда оператора. Отключить *)
+  iMot.cOnAuto          := false;                                (* Команда Автоматическая. Включить *)
+  iMot.cOffAuto         := false;                                (* Команда Автоматическая. Отключить *)
+  iMot.cOnSafe          := false;                                (* Команда Включить (Безопасный Режим) *)
+  iMot.cOffSafe         := false;                                (* Команда Отключить (Безопасный Режим) *)
+  iMot.cDebl            := false;                                (* Деблокировать Неисправность *)
+  iMot.cDist            := false;                                (* Команда оператора. Включить режим Дист. управления *)
+  iMot.cLocal           := false;                                (* Команда оператора. Включить режим Местн. управления *)
+  iMot.cAuto            := false;                                (* Команда оператора. Режим Автомат *)
+  iMot.cReserve         := false;                                (* Команда оператора. Режим Резерв *)
+  iMot.cHandle          := false;                                (* Команда оператора. Режим Ручной *)
+  iMot.cRepair          := false;                                (* Команда оператора. Режим Ремонт *)
+  iMot.cEdit            := false;                                (* Переключить: Режим редактирования наработки *)
+  iMot.cAutoAuto        := false;                                (* Команда Автоматическая. Режим Автомат *)
+  iMot.cReserveAuto     := false;                                (* Команда Автоматическая. Режим Резерв *)
+  iMot.cHandleAuto      := false;                                (* Команда Автоматическая. Режим Ручной *)
+  iMot.cRepairAuto      := false;                                (* Команда Автоматическая. Режим Ремонт *)
+  iMot.cImitWork        := false;                                (* Не имитировать рабочий режим *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dMot[i]:= iMot;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резервных объектов: Сброс состояния объекта *)
+if dMot[i].nLogicNot & not dMot[i].oLogicNot then
+  dMot[i].sOn           := false;                                (* Включен *)       
+  dMot[i].sOff          := false;                                (* Отключен *)      
+  dMot[i].sConnect      := false;                                (* Включается *)    
+  dMot[i].sDisconn      := false;                                (* Отключается *)   
+  dMot[i].sImit         := false;                                (* Имитация *)      
+  dMot[i].sDist         := false;                                (* Управление Дистанционное *)
+  dMot[i].sLocal        := false;                                (* Управление Местное *)
+  dMot[i].sNo           := false;                                (* Управление Отключено *)
+  dMot[i].sPower        := false;                                (* Есть напряжение в схеме управл. *)
+  dMot[i].sWork         := false;                                (* Вышел на рабочий режим *)
+  dMot[i].sReady        := false;                                (* Готов к управлению *)
+  dMot[i].sNotPower     := false;                                (* Нет напряжения в схеме управления *)
+  dMot[i].sNotReady     := false;                                (* Не готов к управлению *)
+  dMot[i].sError        := false;                                (* Общая неисправность *)
+(* maskStateNone=655119 *)
+end_if;
+dMot[i].oLogicNot:= dMot[i].nLogicNot;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+i:= i+1; end_while;
+END_FUNCTION

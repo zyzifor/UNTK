@@ -1,0 +1,22 @@
+FUNCTION crutchDsc
+crutchDsc := 1;
+(* reqAna - номер запрашиваемого объекта (это значение в Modbus пишет панель) *)
+Size := 2;
+m := 63;
+n := 7;
+_dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, Size);
+reqDsc := ANY_TO_DINT(iData[0, 0]);
+IF reqDsc = 0 THEN
+	ansDsc := 1;
+ELSIF reqDsc <= sDsc.iMax THEN
+	IF Rd THEN
+		dDsc[ansDsc] := dDsc[1];
+	ELSE
+		dDsc[1] := dDsc[reqDsc];
+		ansDsc := reqDsc;
+	END_IF;
+END_IF;
+(* ansAna - номер выдаваемого объекта (это значение в Modbus пишет контроллер) *)
+iData[0, 1] := ANY_TO_WORD(ansDsc);
+_dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, Size);
+END_FUNCTION

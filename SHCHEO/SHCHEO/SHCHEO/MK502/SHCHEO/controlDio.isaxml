@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="controlDio" ElementGuid="3f50b45a-f403-4936-b808-658a1e35a19e" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="controlDio" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION controlDio
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name                Data Type      Dimension            Direction  Attribute       Comment                         *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* controlDio          BOOL                                VarOutput  Write           Результат выполнения функции *)
+(* iPrgChange          BOOL                                VarInput   Read            Флаг изменения программы ПЛК *)
+(* i                   DINT                                Var        Read/Write      Счётчик *)
+(* _bRes               BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes               DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+controlDio          := true;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sDio.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iDio:= dDio[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+  (* Обмен данными *)
+  case i of
+     1: ; (* Panel             ЩЭО. Для панели                                    *)
+     2: ; (* A1.01             ЩЭО. МК-550-024 (PSU)                              *)
+     3: ; (* A1.02             ЩЭО. МК-550-024 (PSU)                              *)
+     4: ; (* A1.03             ЩЭО. МК-502-142 (CPU)                              *)
+     5: ; (* A1.04             ЩЭО. МК-576-016А (ai16ahart)                       *)
+     6: ; (* A1.05             ЩЭО. МК-576-016А (ai16ahart)                       *)
+     7: ; (* A1.06             ЩЭО. МК-521-0032А (di32)                           *)
+     8: ; (* A1.07             ЩЭО. МК-521-0032А (di32)                           *)
+     9: ; (* A1.08             ЩЭО. МК-521-0032А (di32)                           *)
+    10: ; (* A1.09             ЩЭО. МК-531-032 (do32)                             *)
+    11: ; (* A1.10             ЩЭО. МК-541-002 (rs485)                            *)
+    12: ; (* MBPS1             ЩЭО. MK ModbusRTU Slave Port1                      *)
+    13: ; (* MBPM2             ЩЭО. MK ModbusRTU Master Port2                     *)
+    14: ; (* MBP               ЩЭО. MK Modbus Slave                               *)
+    15: ; (* SYS               ЩЭО. MK Системная информация                       *)
+    16: ; (* DT                ЩЭО. MK Системное время                            *)
+  end_case;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dDio[i]:= iDio;
+i:= i+1; end_while;
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

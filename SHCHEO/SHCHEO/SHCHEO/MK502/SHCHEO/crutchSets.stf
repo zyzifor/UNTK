@@ -1,0 +1,22 @@
+FUNCTION crutchSets
+crutchSets := 1;
+(* reqAna - номер запрашиваемого объекта (это значение в Modbus пишет панель) *)
+Size := 2;
+m := 63;
+n := 1;
+_dRes:= SafeCopyFromModbusREGsArray(iodMBP_4x, iData, m, n, 0, 0, Size);
+reqSets := ANY_TO_DINT(iData[0, 0]);
+IF reqSets = 0 THEN
+	ansSets := 1;
+ELSIF reqSets <= sSets.iMax THEN
+	IF Rd THEN
+		dSets[ansSets] := dSets[1];
+	ELSE
+		dSets[1] := dSets[reqSets];
+		ansSets := reqSets;
+	END_IF;
+END_IF;
+(* ansAna - номер выдаваемого объекта (это значение в Modbus пишет контроллер) *)
+iData[0, 1] := ANY_TO_WORD(ansSets);
+_dRes:= SafeCopyToModbusREGsArray(iData, iodMBP_4x, 0, 0, m, n, Size);
+END_FUNCTION

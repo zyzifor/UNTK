@@ -1,0 +1,16 @@
+date_format (0..2) формат выбора даты архива
+0 - доступен DD.MM.YYYY
+1 - доступен MM.YYYY 
+2 - доступен YYYY
+
+doc_date_format (0..5) формат отображения даты отчета в в списке архива
+5 - hh:mm:ss DD.MM.YYYY
+4 - hh:mm    DD.MM.YYYY
+3 - hh	     DD.MM.YYYY
+2 - 		   YYYY
+1 - 		MM.YYYY
+0 - 	     DD.MM.YYYY
+
+options (0..1)
+0 - книжная ориентация
+1 - альбомная ориентация

@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Pou FileVersion="200.00.003" Name="processSets" ElementGuid="813027c3-35f0-4f35-94ed-15cb1a3a6e89" Comment="" SingleTextLine="" Language="ST" CustomFbd="0" Localization="Prj" GroupName="(User defined)" GenDebugInfo="false" UseResPassword="true" GenerateSymbMon="true" Is1499="false">
+  <Function IdentifierNb="0" Keyword="" ConvDirection="NoConversion" DataType="DINT" />
+  <LocalVars>
+    <Variable Name="processSets" DataType="DINT" InitialValue="" Comment="" Address="" Modifier="Constant" Kind="VarOutput" Alias="" AccessRights="Write" StringSize="0" Direction="Output" CommentFields="" Attributes="23825" />
+    <Variable Name="iPrgModify" DataType="BOOL" InitialValue="" Comment="Полная перезагрузка ПЛК" Address="" Modifier="Constant" Kind="VarInput" Alias="" AccessRights="Read" StringSize="0" Direction="Input" CommentFields="" Attributes="0" />
+    <Variable Name="_sObj_iMin" DataType="DINT" InitialValue="" Comment="Начиная с какого объекта" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_dRes" DataType="DINT" InitialValue="" Comment="Результат функции DINT" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_fileName" DataType="STRING" InitialValue="" Comment="Имя файла" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="80" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_bRes" DataType="BOOL" InitialValue="" Comment="" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_operCodeN" DataType="DINT" InitialValue="" Comment="Код операции: Номер объекта " Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="i" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_sObj_iMax" DataType="DINT" InitialValue="" Comment="Максимальное количество объектов" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="_sObj_iSize" DataType="DINT" InitialValue="" Comment="Рабочее количество объектов" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+    <Variable Name="j" DataType="DINT" InitialValue="" Comment="Счётчик" Address="" Modifier="NonRetain" Kind="Var" Alias="" AccessRights="ReadWrite" StringSize="0" RetainFlags="" CommentFields="" Attributes="0" GroupName="" />
+  </LocalVars>
+  <PouBody><![CDATA[FUNCTION processSets
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Name            Data Type      Dimension            Direction  Attribute       Comment                             *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* processSets    DINT                                VarOutput  Write           Результат выполнения функции *)
+(* iSets           typSets                             Var        Read/Write      Рабочий объект *)
+(* i               DINT                                Var        Read/Write      Счётчик *)
+(* _bRes           BOOL                                Var        Read/Write      Результат функции BOOL *)
+(* _dRes           DINT                                Var        Read/Write      Результат функции DINT *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+processSets:= sSets.iSize;
+if sSets.iSize>sSets.iMax then processSets:= -sSets.iSize; return; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Проход по всем параметрам *)
+i:= 1;   while i<=sSets.iSize do
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+if not dSets[i].nLogicNot then
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача в Рабочий объект *)
+  iSets:= dSets[i];
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Начало логики *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Имена файлов и максимальное количество объектов *)
+  _sObj_iMin:= 1;
+  case i of
+  	 1:    _fileName:= 'rubbish.dat';     _sObj_iMax:= 1;     _sObj_iSize:=     1;
+     2:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Ana.dat';     _sObj_iMax:= sAna.iMax;     _sObj_iSize:=     sAna.iSize;
+     3:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Dsc.dat';     _sObj_iMax:= sDsc.iMax;     _sObj_iSize:=     sDsc.iSize;
+	 4:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Mot.dat';     _sObj_iMax:= sMot.iMax;     _sObj_iSize:=     sMot.iSize; 
+	 5:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Safe.dat';    _sObj_iMax:= sSafe.iMax;    _sObj_iSize:=     sSafe.iSize;
+	 6:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Dso.dat';     _sObj_iMax:= sDso.iMax;     _sObj_iSize:=     sDso.iSize; 
+     7:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Vlv.dat';     _sObj_iMax:= sVlv.iMax;     _sObj_iSize:=     sVlv.iSize;
+end_case;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Чтение уставок из ПЛК *) 
+  if iSets.nSetsRead then
+    iSets.resFileWrite:= WriteReal2DimArray(_fileName, dSetsData[i].Data);
+  end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Сброс операций *)
+  iSets.nSetsRead:= false; iSets.nSetsWrite:= false;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Перезагрузка программы ПЛК - Запись в ПЛК всех уставок *)
+  if nPrgModify then iSets.operCode:= 20000; end_if;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+  _operCodeN:= -1;
+(* Расшифровка кода операции *)  
+  if iSets.operCode<>0 then 
+    iSets.nSetsRead := ANY_TO_DINT(iSets.operCode)>=10000 and ANY_TO_DINT(iSets.operCode)<20000;
+    iSets.nSetsWrite:= ANY_TO_DINT(iSets.operCode)>=20000;
+	if    iSets.nSetsRead  then
+	  _operCodeN:= ANY_TO_DINT(iSets.operCode)-(ANY_TO_DINT(iSets.operCode)/10000)*10000;
+	elsif iSets.nSetsWrite then
+	  _operCodeN:= ANY_TO_DINT(iSets.operCode)-(ANY_TO_DINT(iSets.operCode)/20000)*20000;
+	end_if; 
+  (* проверка диапазона объектов *)
+    if _operCodeN<0 or _operCodeN>_sObj_iMax or _operCodeN>500 then _operCodeN:= -1; end_if; 
+	iSets.nSetsRead := iSets.nSetsRead  & _operCodeN>=0;
+	iSets.nSetsWrite:= iSets.nSetsWrite & _operCodeN>=0;
+  (* диапазон объектов *) 
+	if    _operCodeN=0 then 	(* считать все *)
+	  _sObj_iMin:= 1;
+	elsif _operCodeN>0 then 	(* считать только один объект *)
+	  _sObj_iMin := _operCodeN;
+	  _sObj_iSize:= _operCodeN;
+    end_if; 
+	iSets.operCode:= 0;
+  end_if; 
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Запись уставок в ПЛК *) 
+  if iSets.nSetsWrite then
+    iSets.resFileRead :=  ReadReal2DimArray(_fileName, dSetsData[i].Data);
+  end_if; 
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача Команд по объектам *)
+  if iSets.nSetsRead or iSets.nSetsWrite then
+    j:= _sObj_iMin;   while j<=_sObj_iSize do 
+      case i of 
+	   1:    _fileName:= 'rubbish.dat';     _sObj_iMax:= 1;     _sObj_iSize:=     1;
+  	   2:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Ana.dat';     _sObj_iMax:= sAna.iMax;     _sObj_iSize:=     sAna.iSize;
+	   3:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Dsc.dat';     _sObj_iMax:= sDsc.iMax;     _sObj_iSize:=     sDsc.iSize;
+	   4:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Mot.dat';     _sObj_iMax:= sMot.iMax;     _sObj_iSize:=     sMot.iSize; 
+	   5:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Safe.dat';    _sObj_iMax:= sSafe.iMax;    _sObj_iSize:=     sSafe.iSize;
+	   6:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Dso.dat';     _sObj_iMax:= sDso.iMax;     _sObj_iSize:=     sDso.iSize; 
+       7:    _fileName:= 'sets'+ANY_TO_STRING(nIdnLink)+'Vlv.dat';     _sObj_iMax:= sVlv.iMax;     _sObj_iSize:=     sVlv.iSize;
+	  end_case;
+    j:= j+1; end_while;
+  end_if; 	
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Конец логики *)
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Передача из Рабочего объекта *)
+  dSets[i]:= iSets;
+(* ------------------------------------------------------------------------------------------------------------------ *)
+(* Отключение резевных объектов *)
+end_if;
+i:= i+1; end_while;
+END_FUNCTION]]></PouBody>
+  <PouUIProperties>
+    <Root Version="7">
+  <LanguageContainerStyle CommentTextColor="Green" CommentFont="Courier New, 10pt" PonctuationTextColor="Black" PonctuationFont="Courier New, 10pt" IdentifierTextColor="Black" IdentifierFont="Courier New, 10pt" OperatorTextColor="Black" OperatorFont="Courier New, 10pt" ReservedWordTextColor="Fuchsia" ReservedWordFont="Courier New, 10pt" PouTextColor="BlueViolet" PouFont="Courier New, 10pt" NumberTextColor="Firebrick" NumberFont="Courier New, 10pt" StringTextColor="Gray" StringFont="Courier New, 10pt" EditorTextAreaBackgroundColor="White" EditorFont="Courier New, 10pt" Index="0" />
+</Root>
+  </PouUIProperties>
+</Pou>

@@ -1,0 +1,180 @@
+<html lang="ru">
+<HEAD>
+  <meta charset="UTF-8">
+  <META NAME="Author" CONTENT="AlphaPlatform">/
+  <STYLE type="text/css">
+    @media print {BODY {margin: 5mm 5mm 5mm 5mm; }}
+  </STYLE>
+</HEAD>
+
+<BODY style="background-color:#FFFFFF; font-size:14px" > <!--задний фон-->
+<!--скрипт на отключение ПКМ-->
+<Script Language="JavaScript">
+  function contextFun() {
+    return false;
+  } document.oncontextmenu=contextFun;
+</Script>
+
+{@set ndateb = #dateb + 2000} <!--дает запрос на год + увеличивает год-->
+{@set day_count = $GetCountDayInMonth(ndateb)} <!--запрашивает день в месяце-->
+{@set ndatee = ndateb + day_count * 24 * 3600 * 1000}
+<!--запрашивает функцию-->
+{@SQL}
+select * from jurnal_data_get({@p ndateb}, {@p ndatee}, {@p #type});
+{@/SQL}
+
+{@set abak1 = "A1 №1239"}         <!--номер АБАКа-->
+{@set abak2 = "A2 №1240"}         <!--номер АБАКа-->
+{@set il_count=3}                 <!--кол-во ИЛов-->
+{@set rec_max=$GetCountRS() - 1}  <!--???-->
+{@set NumBIK=-1}                  <!--кол-во БИКов-->
+{@set NULL  = "-"}                <!--null приравнивает к 0 в таблицах-->
+
+<font style="font-size:10px;line-height:1.0">
+  <div align="left"> <b> СОИ СИКГ УПН Западно-Зимнего<br>
+    Месячный отчет/журнал</b></div></font>
+
+<font style="font-size:12px;line-height:1.0">
+  <div align="center"><b>Месячный журнал регистрации показаний средств измерений<br>
+    c {@p $DateFull(ndateb - 1000)} по {@p $DateFull(ndatee - 1000)}</b></div></font>
+
+{@array days[35]}<!--массив для номеров записей часовок-->
+{@for n=0, 34}
+{@set days[n] = -1}
+{@/for}
+
+{@set month = -1}
+{@set temp_tota_vol = 0}
+{@set temp_tota_vol20 = 0}
+{@set temp_tot1_vol = 0}
+{@set temp_tot1_vol20 = 0}
+{@set temp_tot2_vol = 0}
+{@set temp_tot2_vol20 = 0}
+{@set temp_tot3_vol = 0}
+{@set temp_tot3_vol20 = 0}
+{@set startday = ndateb - 1000} <!--тут строго начало месяца с учетом контракта, который считается по формуле в скл-->
+
+{@for n=0, rec_max}
+{@if ((line[n] == 0) AND (type[n] == #type)) }
+    {@set dif_day = ( date[n] - startday ) / 24 / 3600000}
+<!--количество суток с начала периода. Первый отчет - на расстоянии 24 часов от начала, поэтому в массиве нулевой элемент всегда пустой-->
+    {@set days[dif_day] = n}
+  {@/if}
+{@if ((line[n] == 0) AND (type[n] == #type + 4)) }
+    {@set month = n}
+  {@/if}
+{@/for}
+
+{@if ((#type == 104))}
+
+<table width="100%">
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+    table, th, td {
+      border: 1px solid #000000;
+    }
+  </style>
+  <tr>
+    <td rowspan ="3" width="5%" align="center">№<br>п/п <!--Объдинение столбца-->
+    </td>
+    <th colspan="2" width="10%" align="center">Время и дата<br>"чч:дд дд.мм.гггг"<!--Объдинение строки-->
+    </th>
+    <th colspan="2" align="center">СИКГ газ<br>на ПТБ 1
+    </th>
+    <th colspan="2" align="center">СИКГ газ<br>на ПТБ 2
+    </th>
+    <th colspan="2" align="center">СИКГ газ<br>на ПТБ 3
+    </th>
+    <th colspan="2" align="center">СИКГ газ<br>на ПТБ 4
+    </th>
+    <th colspan="2" align="center">СИКГ газ<br>на ПТБ 5
+    </th>
+    <th colspan="2" align="center">СИКГ газ<br>на ПТБ 6
+    </th>
+  </tr>
+
+<tr>
+  <td style="width: 8%;" rowspan ="2" align="center">
+    <p>начало</p>
+  </td>
+  <td style="width: 8%;" rowspan ="2" align="center">
+    <p>оконч.</p>
+  </td>
+  <td align="center">
+    <p> Объем при р.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при ст.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при р.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при ст.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при р.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при ст.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при р.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при ст.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при р.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при ст.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при р.у.,&sup3;</p>
+  </td>
+  <td align="center">
+    <p> Объем при ст.у.,&sup3;</p>
+  </td>
+</tr>
+
+<tr>
+  <td colspan="2" align="center" > за период
+  </td>
+  <td colspan="2" align="center" > за период
+  </td>
+  <td colspan="2" align="center" > за период
+  </td>
+  <td colspan="2" align="center" > за период
+  </td>
+  <td colspan="2" align="center" > за период
+  </td>
+  <td colspan="2" align="center" > за период
+  </td>
+</tr>
+
+<tr>
+  <td align="center"> 1
+  </td>
+  <td align="center"> 2
+  </td>
+  <td align="center"> 3
+  </td>
+  <td colspan="2" align="center"> 4
+  </td>
+  <td colspan="2" align="center"> 5
+  </td>
+  <td colspan="2" align="center"> 6
+  </td>
+  <td colspan="2" align="center"> 7
+  </td>
+  <td colspan="2" align="center"> 8
+  </td>
+  <td colspan="2" align="center"> 9
+  </td>
+</tr>
+</table>
+
+

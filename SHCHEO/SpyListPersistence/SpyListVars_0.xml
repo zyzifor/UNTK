@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SpyListVars_0>
+  <ConfigurationInfo>
+    <SpyListName>Spy List Name[1]</SpyListName>
+    <ConfigFileVersion>3</ConfigFileVersion>
+    <ToolWindowPaneIndex>0</ToolWindowPaneIndex>
+    <DefaultRefreshRateMonitoring>500</DefaultRefreshRateMonitoring>
+  </ConfigurationInfo>
+  <Variable>
+    <FullName>SHCHEO.MK502.SHCHEO.dDioMK541NData[0].dMBData.regs</FullName>
+  </Variable>
+  <Variable>
+    <FullName>SHCHEO.MK502.SHCHEO.dDioMK541NData[0].dMBData.regs[1]</FullName>
+  </Variable>
+</SpyListVars_0>
